@@ -74,6 +74,12 @@ public class Net {
         });
     }
 
+    public static void syncBalance(ServerPlayer player) {
+        if (player == null) return;
+        int balance = CoinsService.get(player.serverLevel(), player);
+        sendCoinsBalance(player, balance);
+    }
+
     public static void sendCoinsBalance(ServerPlayer player, int balance) {
         PacketDistributor.sendToPlayer(player, new CoinsBalancePayload(balance));
     }
