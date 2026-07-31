@@ -1,6 +1,9 @@
 [
-  { "item": "create_aeronautics:propeller",      "amount": 1,  "cost": 40, "category": "questshop:aeronautics" },
-  { "item": "create_aeronautics:airship_helm",   "amount": 1,  "cost": 50, "category": "questshop:aeronautics" },
-  { "item": "create_aeronautics:balloon",        "amount": 4,  "cost": 15, "category": "questshop:aeronautics" },
-  { "item": "create_aeronautics:altitude_gauge", "amount": 1,  "cost": 20, "category": "questshop:aeronautics" }
+  { "item": "aeronautics:wooden_propeller",   "amount": 1, "cost": 15, "category": "questshop:aeronautics" },
+  { "item": "aeronautics:andesite_propeller", "amount": 1, "cost": 25, "category": "questshop:aeronautics" },
+  { "item": "aeronautics:propeller_bearing",  "amount": 1, "cost": 30, "category": "questshop:aeronautics" },
+  { "item": "aeronautics:white_envelope",     "amount": 4, "cost": 20, "category": "questshop:aeronautics" },
+  { "item": "aeronautics:adjustable_burner",  "amount": 1, "cost": 40, "category": "questshop:aeronautics" },
+  { "item": "aeronautics:levitite",           "amount": 2, "cost": 50, "category": "questshop:aeronautics" },
+  { "item": "aeronautics:aviators_goggles",   "amount": 1, "cost": 35, "category": "questshop:aeronautics" }
 ]
