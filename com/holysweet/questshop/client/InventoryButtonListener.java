@@ -17,13 +17,13 @@ public class InventoryButtonListener {
             int x = InventoryScreenHelper.getLeft(inventoryScreen) + 150;
             int y = InventoryScreenHelper.getTop(inventoryScreen) + 60;
             Button shopBtn = Button.builder(
-                Component.literal("🛒"),
+                Component.literal("Shop"),
                 btn -> {
                     if (Minecraft.getInstance().player != null) {
                         Minecraft.getInstance().player.connection.sendCommand("shop");
                     }
                 }
-            ).bounds(x, y, 20, 20).tooltip(Tooltip.create(Component.literal("FtbQshop (เปิดร้านค้า)"))).build();
+            ).bounds(x, y, 32, 18).tooltip(Tooltip.create(Component.literal("FtbQshop (เปิดร้านค้า)"))).build();
             event.addListener(shopBtn);
         }
     }

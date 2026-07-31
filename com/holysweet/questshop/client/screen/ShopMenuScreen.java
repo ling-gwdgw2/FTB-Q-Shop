@@ -55,7 +55,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
         // "All Items" Category Button
         Button allBtn = Button.builder(
-            Component.literal("📦 All Items"),
+            Component.literal("All Items"),
             b -> {
                 selectedCategory = null;
                 refreshEntries();
@@ -92,7 +92,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int searchY = this.topPos + 22;
         int searchWidth = this.imageWidth - 16;
         this.searchBox = new EditBox(this.font, searchX, searchY, searchWidth, 16, Component.literal("Search"));
-        this.searchBox.setHint(Component.literal("🔍 Search items..."));
+        this.searchBox.setHint(Component.literal("Search items..."));
         this.searchBox.setResponder(text -> refreshEntries());
         this.addRenderableWidget(this.searchBox);
 
