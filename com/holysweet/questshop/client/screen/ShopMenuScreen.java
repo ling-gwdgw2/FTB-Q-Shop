@@ -116,6 +116,32 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         refreshEntries();
     }
 
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.searchBox != null && this.searchBox.isFocused()) {
+            if (keyCode == 256) { // ESC key
+                this.searchBox.setFocused(false);
+                return true;
+            }
+            if (this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
+            // Consume all key presses while search box is focused so game hotkeys (E, Q, B, etc.) are never triggered
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        if (this.searchBox != null && this.searchBox.isFocused()) {
+            if (this.searchBox.charTyped(codePoint, modifiers)) {
+                return true;
+            }
+        }
+        return super.charTyped(codePoint, modifiers);
+    }
+
     public void refreshEntries() {
         List<ShopEntry> rawEntries = ClientShopData.get();
         String query = searchBox != null ? searchBox.getValue().toLowerCase().trim() : "";
