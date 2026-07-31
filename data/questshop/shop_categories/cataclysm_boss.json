@@ -1,5 +1,5 @@
 {
-  "display": "🐉 Cataclysm (แร่บอสและวัตถุโบราณ)",
-  "unlocked_by_default": false,
+  "display": "Cataclysm Boss Relics",
+  "unlocked_by_default": true,
   "order": 10
 }
