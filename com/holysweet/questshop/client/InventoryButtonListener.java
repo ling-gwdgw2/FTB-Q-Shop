@@ -22,7 +22,7 @@ public class InventoryButtonListener {
                 Component.literal("Shop"),
                 btn -> {
                     if (Minecraft.getInstance().player != null) {
-                        Minecraft.getInstance().player.connection.sendCommand("shop");
+                        Minecraft.getInstance().player.connection.sendCommand("hqs shop");
                     }
                 }
             ).bounds(x, y, 32, 16).tooltip(Tooltip.create(Component.literal("FtbQshop (เปิดร้านค้า)"))).build();
