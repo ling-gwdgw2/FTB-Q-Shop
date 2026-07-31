@@ -1,0 +1,6 @@
+[
+  { "item": "create_aeronautics:propeller",      "amount": 1,  "cost": 40, "category": "questshop:aeronautics" },
+  { "item": "create_aeronautics:airship_helm",   "amount": 1,  "cost": 50, "category": "questshop:aeronautics" },
+  { "item": "create_aeronautics:balloon",        "amount": 4,  "cost": 15, "category": "questshop:aeronautics" },
+  { "item": "create_aeronautics:altitude_gauge", "amount": 1,  "cost": 20, "category": "questshop:aeronautics" }
+]

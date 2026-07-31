@@ -1,0 +1,10 @@
+[
+  { "item": "create:cogwheel",            "amount": 8,  "cost": 4,  "category": "questshop:create_tech" },
+  { "item": "create:large_cogwheel",      "amount": 4,  "cost": 4,  "category": "questshop:create_tech" },
+  { "item": "create:water_wheel",         "amount": 1,  "cost": 6,  "category": "questshop:create_tech" },
+  { "item": "create:steam_engine",        "amount": 1,  "cost": 20, "category": "questshop:create_tech" },
+  { "item": "create:fluid_tank",          "amount": 4,  "cost": 12, "category": "questshop:create_tech" },
+  { "item": "create:brass_ingot",         "amount": 4,  "cost": 15, "category": "questshop:create_tech" },
+  { "item": "create:precision_mechanism", "amount": 1,  "cost": 30, "category": "questshop:create_tech" },
+  { "item": "create:blaze_burner",        "amount": 1,  "cost": 25, "category": "questshop:create_tech" }
+]
