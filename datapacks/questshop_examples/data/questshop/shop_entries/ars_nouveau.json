@@ -1,8 +1,0 @@
-[
-  { "item": "ars_nouveau:source_gem",          "amount": 4,  "cost": 12, "category": "questshop:ars_nouveau" },
-  { "item": "ars_nouveau:magebloom_crop",      "amount": 4,  "cost": 10, "category": "questshop:ars_nouveau" },
-  { "item": "ars_nouveau:novice_spell_book",   "amount": 1,  "cost": 35, "category": "questshop:ars_nouveau" },
-  { "item": "ars_nouveau:archmage_spell_book", "amount": 1,  "cost": 150,"category": "questshop:ars_nouveau" },
-  { "item": "ars_nouveau:source_jar",          "amount": 1,  "cost": 25, "category": "questshop:ars_nouveau" },
-  { "item": "ars_nouveau:wixie_charm",         "amount": 1,  "cost": 45, "category": "questshop:ars_nouveau" }
-]
