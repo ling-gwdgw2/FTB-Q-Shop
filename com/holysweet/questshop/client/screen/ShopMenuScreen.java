@@ -32,6 +32,12 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     private ShopList list;
     private Button buyButton;
     private EditBox searchBox;
+    private EditBox qtyBox;
+    private Button minusBtn;
+    private Button plusBtn;
+    private Button stackBtn;
+    private Button maxBtn;
+
     private ResourceLocation selectedCategory = null;
     private final List<Button> categoryButtons = new ArrayList<>();
     private boolean purchasePending = false;
@@ -39,7 +45,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     public ShopMenuScreen(ShopMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = 280;
-        this.imageHeight = 220;
+        this.imageHeight = 230;
     }
 
     @Override
@@ -53,7 +59,6 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int catWidth = 100;
         int catHeight = 18;
 
-        // "All Items" Category Button
         Button allBtn = Button.builder(
             Component.literal("All Items"),
             b -> {
@@ -98,35 +103,105 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
         // 3. Shop List Widget
         int listY = searchY + 20;
-        int listHeight = this.imageHeight - 72;
+        int listHeight = this.imageHeight - 88;
         this.list = new ShopList(Minecraft.getInstance(), this.imageWidth - 16, listHeight, listY, 20);
         this.list.setX(this.leftPos + 8);
         this.list.setOnSelectionChanged(this::updateButtonState);
         this.addRenderableWidget(this.list);
 
-        // 4. Buy Button
-        int buyWidth = (int) Math.round(this.imageWidth * 0.6);
-        int buyX = this.leftPos + (this.imageWidth - buyWidth) / 2;
-        int buyY = this.topPos + this.imageHeight - 26;
+        // 4. Quantity Controls & Buy Button Panel
+        int panelY = this.topPos + this.imageHeight - 24;
+        
+        // Quantity label and EditBox
+        this.qtyBox = new EditBox(this.font, this.leftPos + 8, panelY, 36, 16, Component.literal("Qty"));
+        this.qtyBox.setValue("1");
+        this.qtyBox.setResponder(text -> updateButtonState());
+        this.addRenderableWidget(this.qtyBox);
+
+        // [-] [+] [x64] [MAX] buttons
+        this.minusBtn = Button.builder(Component.literal("-"), b -> changeQty(-1))
+                .bounds(this.leftPos + 46, panelY, 14, 16).build();
+        this.plusBtn = Button.builder(Component.literal("+"), b -> changeQty(1))
+                .bounds(this.leftPos + 61, panelY, 14, 16).build();
+        this.stackBtn = Button.builder(Component.literal("x64"), b -> setQty(64))
+                .bounds(this.leftPos + 77, panelY, 26, 16).build();
+        this.maxBtn = Button.builder(Component.literal("MAX"), b -> setMaxQty())
+                .bounds(this.leftPos + 105, panelY, 30, 16).build();
+
+        this.addRenderableWidget(this.minusBtn);
+        this.addRenderableWidget(this.plusBtn);
+        this.addRenderableWidget(this.stackBtn);
+        this.addRenderableWidget(this.maxBtn);
+
+        // Buy Button
+        int buyX = this.leftPos + 138;
+        int buyWidth = this.imageWidth - 146;
         this.buyButton = Button.builder(Component.literal("Buy Item"), this::buttonClick)
-                .bounds(buyX, buyY, buyWidth, 20)
+                .bounds(buyX, panelY, buyWidth, 16)
                 .build();
         this.addRenderableWidget(this.buyButton);
 
         refreshEntries();
     }
 
+    private int getQuantity() {
+        if (this.qtyBox == null) return 1;
+        try {
+            String val = this.qtyBox.getValue().trim();
+            if (val.isEmpty()) return 1;
+            int q = Integer.parseInt(val);
+            return Math.max(1, Math.min(999, q));
+        } catch (NumberFormatException e) {
+            return 1;
+        }
+    }
+
+    private void changeQty(int delta) {
+        int current = getQuantity();
+        int next = Math.max(1, Math.min(999, current + delta));
+        if (this.qtyBox != null) {
+            this.qtyBox.setValue(String.valueOf(next));
+        }
+    }
+
+    private void setQty(int qty) {
+        if (this.qtyBox != null) {
+            this.qtyBox.setValue(String.valueOf(Math.max(1, Math.min(999, qty))));
+        }
+    }
+
+    private void setMaxQty() {
+        if (this.list == null || this.list.getSelected() == null) return;
+        ShopListEntry selected = (ShopListEntry) this.list.getSelected();
+        if (selected == null || selected.data == null) return;
+        
+        int unitCost = selected.data.cost();
+        int userCoins = ClientCoins.get();
+        if (unitCost <= 0) {
+            setQty(999);
+            return;
+        }
+        int maxAfford = userCoins / unitCost;
+        setQty(Math.max(1, Math.min(999, maxAfford)));
+    }
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.searchBox != null && this.searchBox.isFocused()) {
+        boolean searchFocused = this.searchBox != null && this.searchBox.isFocused();
+        boolean qtyFocused = this.qtyBox != null && this.qtyBox.isFocused();
+
+        if (searchFocused || qtyFocused) {
             if (keyCode == 256) { // ESC key
-                this.searchBox.setFocused(false);
+                if (searchFocused) this.searchBox.setFocused(false);
+                if (qtyFocused) this.qtyBox.setFocused(false);
                 return true;
             }
-            if (this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
+            if (searchFocused && this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
                 return true;
             }
-            // Consume all key presses while search box is focused so game hotkeys (E, Q, B, etc.) are never triggered
+            if (qtyFocused && this.qtyBox.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -134,6 +209,12 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
+        if (this.qtyBox != null && this.qtyBox.isFocused()) {
+            if (Character.isDigit(codePoint)) {
+                return this.qtyBox.charTyped(codePoint, modifiers);
+            }
+            return true;
+        }
         if (this.searchBox != null && this.searchBox.isFocused()) {
             if (this.searchBox.charTyped(codePoint, modifiers)) {
                 return true;
@@ -148,11 +229,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
         List<ShopListEntry> filtered = rawEntries.stream()
                 .filter(entry -> {
-                    // Category filter
                     if (selectedCategory != null && !entry.category().equals(selectedCategory)) {
                         return false;
                     }
-                    // Search query filter
                     if (!query.isEmpty()) {
                         String name = entry.itemId().getPath().toLowerCase();
                         return name.contains(query) || entry.itemId().toString().toLowerCase().contains(query);
@@ -211,14 +290,25 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     public void updateButtonState() {
         if (this.buyButton == null) return;
         boolean canBuy = false;
+        int qty = getQuantity();
+
         if (!this.purchasePending && this.list != null && this.list.getSelected() != null) {
             ShopListEntry selected = (ShopListEntry) this.list.getSelected();
-            if (selected != null) {
+            if (selected != null && selected.data != null) {
                 ShopEntry data = selected.data;
-                if (ClientCategories.isUnlocked(data.category()) && ClientCoins.get() >= data.cost()) {
+                int totalCost = data.cost() * qty;
+                int totalItems = data.amount() * qty;
+
+                this.buyButton.setMessage(Component.literal("Buy x" + totalItems + " (" + totalCost + " Gems)"));
+
+                if (ClientCategories.isUnlocked(data.category()) && ClientCoins.get() >= totalCost) {
                     canBuy = true;
                 }
+            } else {
+                this.buyButton.setMessage(Component.literal("Buy Item"));
             }
+        } else {
+            this.buyButton.setMessage(Component.literal("Buy Item"));
         }
         this.buyButton.active = canBuy;
     }
@@ -233,13 +323,17 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             return;
         }
         ShopListEntry selected = (ShopListEntry) this.list.getSelected();
-        if (selected == null) {
+        if (selected == null || selected.data == null) {
             this.purchasePending = false;
             updateButtonState();
             return;
         }
         ShopEntry data = selected.data;
-        PacketDistributor.sendToServer(new BuyEntryPayload(data.itemId(), data.amount(), data.cost(), data.category()));
+        int qty = getQuantity();
+        int totalAmount = data.amount() * qty;
+        int totalCost = data.cost() * qty;
+
+        PacketDistributor.sendToServer(new BuyEntryPayload(data.itemId(), totalAmount, totalCost, data.category()));
     }
 
     @Override
