@@ -1,0 +1,10 @@
+[
+  { "item": "minecraft:iron_pickaxe",    "amount": 1,  "cost": 8,  "category": "questshop:industrial_tools" },
+  { "item": "minecraft:diamond_pickaxe", "amount": 1,  "cost": 35, "category": "questshop:industrial_tools" },
+  { "item": "minecraft:spyglass",        "amount": 1,  "cost": 15, "category": "questshop:industrial_tools" },
+  { "item": "minecraft:clock",           "amount": 1,  "cost": 5,  "category": "questshop:industrial_tools" },
+  { "item": "minecraft:compass",         "amount": 1,  "cost": 5,  "category": "questshop:industrial_tools" },
+  { "item": "minecraft:recovery_compass","amount": 1,  "cost": 40, "category": "questshop:industrial_tools" },
+  { "item": "minecraft:anvil",           "amount": 1,  "cost": 25, "category": "questshop:industrial_tools" },
+  { "item": "minecraft:blast_furnace",   "amount": 1,  "cost": 10, "category": "questshop:industrial_tools" }
+]

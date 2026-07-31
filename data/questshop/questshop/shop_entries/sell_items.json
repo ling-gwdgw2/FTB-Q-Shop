@@ -1,0 +1,11 @@
+[
+  { "item": "minecraft:cobblestone",    "amount": 64, "cost": 1,   "category": "questshop:sell" },
+  { "item": "minecraft:raw_copper",     "amount": 8,  "cost": 2,   "category": "questshop:sell" },
+  { "item": "minecraft:raw_iron",       "amount": 4,  "cost": 2,   "category": "questshop:sell" },
+  { "item": "minecraft:raw_gold",       "amount": 2,  "cost": 3,   "category": "questshop:sell" },
+  { "item": "minecraft:iron_ingot",     "amount": 2,  "cost": 3,   "category": "questshop:sell" },
+  { "item": "minecraft:gold_ingot",     "amount": 1,  "cost": 4,   "category": "questshop:sell" },
+  { "item": "minecraft:diamond",        "amount": 1,  "cost": 15,  "category": "questshop:sell" },
+  { "item": "minecraft:emerald",        "amount": 1,  "cost": 20,  "category": "questshop:sell" },
+  { "item": "minecraft:netherite_ingot","amount": 1,  "cost": 100, "category": "questshop:sell" }
+]

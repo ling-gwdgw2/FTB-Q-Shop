@@ -1,0 +1,8 @@
+[
+  { "item": "cataclysm:ignitium_ingot",    "amount": 1,  "cost": 80, "category": "questshop:cataclysm_boss" },
+  { "item": "cataclysm:witherite_ingot",   "amount": 1,  "cost": 70, "category": "questshop:cataclysm_boss" },
+  { "item": "cataclysm:void_stone",        "amount": 4,  "cost": 30, "category": "questshop:cataclysm_boss" },
+  { "item": "cataclysm:monstrous_horn",    "amount": 1,  "cost": 100,"category": "questshop:cataclysm_boss" },
+  { "item": "cataclysm:burning_ashes",     "amount": 2,  "cost": 40, "category": "questshop:cataclysm_boss" },
+  { "item": "cataclysm:gauntlet_of_guard", "amount": 1,  "cost": 300,"category": "questshop:cataclysm_boss" }
+]
