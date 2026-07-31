@@ -43,7 +43,7 @@ logoFile="logo.png"
 #credits="" #optional
 
 # A text field displayed in the mod UI
-authors="Holysweet, AquariusSidhe" #optional
+authors="LingRube" #optional
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''Adds a shop that (optionally) integrates with FTB Teams & FTB Quests.'''
