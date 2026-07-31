@@ -2,6 +2,9 @@
   "item.questshop.coin": "Primogem",
   "tooltip.questshop.coin": "§9คลิกขวาเพื่อฝากเหรียญ | SHIFT+คลิกขวาเพื่อฝากทั้งกอง§r",
 
+  "key.categories.questshop": "FtbQshop",
+  "key.questshop.open_shop": "เปิดร้านค้า FtbQshop",
+
   "command.questshop.player_only": "คำสั่งนี้ใช้ได้เฉพาะผู้เล่นเท่านั้น",
   "command.questshop.no_team": "%s ไม่อยู่ในทีม",
   "command.questshop.coins_show": "ทีมของ %s มี %s Primogems",
