@@ -1,0 +1,11 @@
+[
+  { "item": "minecraft:iron_sword",   "amount": 1,  "cost": 12, "category": "weapons" },
+  { "item": "minecraft:diamond_sword","amount": 1,  "cost": 40, "category": "weapons" },
+  { "item": "minecraft:bow",          "amount": 1,  "cost": 10, "category": "weapons" },
+  { "item": "minecraft:crossbow",     "amount": 1,  "cost": 14, "category": "weapons" },
+  { "item": "minecraft:trident",      "amount": 1,  "cost": 50, "category": "weapons" },
+  { "item": "minecraft:shield",       "amount": 1,  "cost":  8, "category": "weapons" },
+  { "item": "minecraft:iron_axe",     "amount": 1,  "cost":  9, "category": "weapons" },
+  { "item": "minecraft:diamond_axe",  "amount": 1,  "cost": 28, "category": "weapons" },
+  { "item": "minecraft:arrow",        "amount": 32, "cost":  4, "category": "weapons" }
+]

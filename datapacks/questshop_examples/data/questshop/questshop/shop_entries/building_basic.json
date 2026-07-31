@@ -1,0 +1,10 @@
+[
+  { "item": "minecraft:cobblestone",       "amount": 64, "cost": 2,  "category": "building" },
+  { "item": "minecraft:oak_planks",        "amount": 64, "cost": 2,  "category": "building" },
+  { "item": "minecraft:glass",             "amount": 32, "cost": 4,  "category": "building" },
+  { "item": "minecraft:torch",             "amount": 32, "cost": 3,  "category": "building" },
+  { "item": "minecraft:chest",             "amount": 4,  "cost": 4,  "category": "building" },
+  { "item": "minecraft:anvil",             "amount": 1,  "cost": 30, "category": "building" },
+  { "item": "minecraft:enchanting_table",  "amount": 1,  "cost": 60, "category": "building" },
+  { "item": "minecraft:ender_chest",       "amount": 1,  "cost": 40, "category": "building" }
+]
