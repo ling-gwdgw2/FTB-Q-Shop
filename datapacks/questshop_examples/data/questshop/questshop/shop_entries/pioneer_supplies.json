@@ -1,0 +1,8 @@
+[
+  { "item": "minecraft:cooked_beef",     "amount": 16, "cost": 5,  "category": "pioneer_supplies" },
+  { "item": "minecraft:golden_apple",    "amount": 2,  "cost": 20, "category": "pioneer_supplies" },
+  { "item": "minecraft:potion",          "amount": 1,  "cost": 10, "category": "pioneer_supplies" },
+  { "item": "minecraft:torch",           "amount": 64, "cost": 4,  "category": "pioneer_supplies" },
+  { "item": "minecraft:ender_pearl",     "amount": 4,  "cost": 16, "category": "pioneer_supplies" },
+  { "item": "minecraft:bundle",          "amount": 1,  "cost": 12, "category": "pioneer_supplies" }
+]
