@@ -1,6 +1,2 @@
-[
-  { "item": "copycats:copycat_block",          "amount": 16, "cost": 8,  "category": "questshop:create_decor" },
-  { "item": "copycats:copycat_slab",           "amount": 16, "cost": 6,  "category": "questshop:create_decor" },
-  { "item": "copycats:copycat_beam",           "amount": 8,  "cost": 8,  "category": "questshop:create_decor" },
-  { "item": "copycats:copycat_vertical_slice", "amount": 16, "cost": 6,  "category": "questshop:create_decor" }
-]
+[]
+

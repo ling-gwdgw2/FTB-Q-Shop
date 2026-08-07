@@ -1,26 +1,2 @@
-[
-  { "item": "aeronautics:wooden_propeller",                        "amount": 1,  "cost": 15,  "category": "questshop:aeronautics" },
-  { "item": "aeronautics:andesite_propeller",                      "amount": 1,  "cost": 25,  "category": "questshop:aeronautics" },
-  { "item": "aeronautics:white_envelope",                          "amount": 4,  "cost": 20,  "category": "questshop:aeronautics" },
-  { "item": "aeronautics_utility_objects:universal_joint",         "amount": 2,  "cost": 15,  "category": "questshop:aeronautics" },
-  { "item": "aerocali:cable",                                       "amount": 16, "cost": 15,  "category": "questshop:aeronautics" },
+[]
 
-  { "item": "aeronautics:propeller_bearing",                       "amount": 1,  "cost": 30,  "category": "questshop:aeronautics" },
-  { "item": "aeronautics:aviators_goggles",                        "amount": 1,  "cost": 35,  "category": "questshop:aeronautics" },
-  { "item": "aeronautics:adjustable_burner",                       "amount": 1,  "cost": 40,  "category": "questshop:aeronautics" },
-  { "item": "aerocali:thermal_mechanism",                          "amount": 1,  "cost": 45,  "category": "questshop:aeronautics" },
-  { "item": "aeronautics:levitite",                                "amount": 2,  "cost": 50,  "category": "questshop:aeronautics" },
-  { "item": "aeronautics_utility_objects:hydraulic_rod",            "amount": 2,  "cost": 30,  "category": "questshop:aeronautics" },
-  { "item": "create_aeronautics_throwable_rope_connector:throwable_rope_connector", "amount": 4, "cost": 25, "category": "questshop:aeronautics" },
-
-  { "item": "create_aeronautics_automated_logistics:ship_transponder", "amount": 2, "cost": 40, "category": "questshop:aeronautics" },
-  { "item": "create_aeronautics_automated_logistics:airship_station",   "amount": 1, "cost": 50, "category": "questshop:aeronautics" },
-  { "item": "aerocali:generator",                                  "amount": 1,  "cost": 60,  "category": "questshop:aeronautics" },
-  { "item": "aerocali:thruster",                                   "amount": 1,  "cost": 65,  "category": "questshop:aeronautics" },
-  { "item": "aerocali:ionized_thermal_mechanism",                  "amount": 1,  "cost": 80,  "category": "questshop:aeronautics" },
-  { "item": "aerocali:industrial_generator",                       "amount": 1,  "cost": 90,  "category": "questshop:aeronautics" },
-
-  { "item": "create_aeronautics_toolgun:survival_structure_tool",  "amount": 1,  "cost": 100, "category": "questshop:aeronautics" },
-  { "item": "create_aeronautics_toolgun:magnetic_gun",             "amount": 1,  "cost": 120, "category": "questshop:aeronautics" },
-  { "item": "aerocali:survival_physics_staff",                     "amount": 1,  "cost": 150, "category": "questshop:aeronautics" }
-]
