@@ -171,6 +171,20 @@ public final class ShopCatalog {
                 configDir.mkdirs();
             }
 
+            // Clean up deleted category JSON files from disk
+            File[] existingFiles = configDir.listFiles((dir, name) -> name.endsWith(".json"));
+            if (existingFiles != null) {
+                Set<String> validFileNames = new HashSet<>();
+                for (ShopCategory cat : categories().values()) {
+                    validFileNames.add(cat.id().getPath() + ".json");
+                }
+                for (File f : existingFiles) {
+                    if (!validFileNames.contains(f.getName())) {
+                        f.delete();
+                    }
+                }
+            }
+
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             for (ShopCategory cat : categories().values()) {
                 JsonObject obj = new JsonObject();
@@ -194,6 +208,20 @@ public final class ShopCatalog {
             File configDir = new File("config/questshop/shop_entries");
             if (!configDir.exists()) {
                 configDir.mkdirs();
+            }
+
+            // Clean up deleted category entry JSON files from disk
+            File[] existingFiles = configDir.listFiles((dir, name) -> name.endsWith(".json"));
+            if (existingFiles != null) {
+                Set<String> validFileNames = new HashSet<>();
+                for (ShopEntry entry : allEntries()) {
+                    validFileNames.add(entry.category().getPath() + ".json");
+                }
+                for (File f : existingFiles) {
+                    if (!validFileNames.contains(f.getName())) {
+                        f.delete();
+                    }
+                }
             }
 
             // Group entries by category path

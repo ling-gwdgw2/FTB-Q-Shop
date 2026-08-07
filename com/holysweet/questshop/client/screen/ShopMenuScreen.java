@@ -201,42 +201,49 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
                 selectedCategory = null;
                 refreshEntries();
             }
-        ).bounds(catX, catY, catWidth - 38, catHeight).build();
+        ).bounds(catX, catY, catWidth - (this.editMode ? 38 : 0), catHeight).build();
         categoryButtons.add(allBtn);
         this.addRenderableWidget(allBtn);
 
-        this.addCategoryBtn = Button.builder(
-            Component.literal("+ Cat"),
-            b -> openCategoryModal(null)
-        ).bounds(catX + 64, catY, 36, catHeight).tooltip(Tooltip.create(Component.literal("Add New Category"))).build();
-        this.addCategoryBtn.visible = this.editMode;
-        this.addRenderableWidget(this.addCategoryBtn);
+        if (this.editMode) {
+            this.addCategoryBtn = Button.builder(
+                Component.literal("+ Cat"),
+                b -> openCategoryModal(null)
+            ).bounds(catX + 64, catY, 36, catHeight).tooltip(Tooltip.create(Component.literal("Add New Category"))).build();
+            this.addRenderableWidget(this.addCategoryBtn);
+            categoryButtons.add(this.addCategoryBtn);
+        }
 
         int currentY = catY + catHeight + 2;
         Map<ResourceLocation, ShopCategory> categories = ClientCategories.categories();
         for (ShopCategory cat : categories.values()) {
             String label = cat.display();
-            if (label.length() > 14) {
-                label = label.substring(0, 12) + "..";
+            int btnW = this.editMode ? catWidth - 20 : catWidth;
+            if (label.length() > 12) {
+                label = label.substring(0, 10) + "..";
             }
             ResourceLocation catId = cat.id();
             String tooltipText = cat.display() + (cat.unlockedByDefault() ? "" : " (Locked)");
-            if (this.editMode) {
-                tooltipText += " [Shift+Click to Edit]";
-            }
+
             Button catBtn = Button.builder(
                 Component.literal(label),
                 b -> {
-                    if (this.editMode && hasShiftDown()) {
-                        openCategoryModal(cat);
-                    } else {
-                        selectedCategory = catId;
-                        refreshEntries();
-                    }
+                    selectedCategory = catId;
+                    refreshEntries();
                 }
-            ).bounds(catX, currentY, catWidth, catHeight).tooltip(Tooltip.create(Component.literal(tooltipText))).build();
+            ).bounds(catX, currentY, btnW, catHeight).tooltip(Tooltip.create(Component.literal(tooltipText))).build();
             categoryButtons.add(catBtn);
             this.addRenderableWidget(catBtn);
+
+            if (this.editMode) {
+                Button editCatBtn = Button.builder(
+                    Component.literal("E"),
+                    b -> openCategoryModal(cat)
+                ).bounds(catX + btnW + 2, currentY, 18, catHeight).tooltip(Tooltip.create(Component.literal("Edit/Delete Category: " + cat.display()))).build();
+                categoryButtons.add(editCatBtn);
+                this.addRenderableWidget(editCatBtn);
+            }
+
             currentY += catHeight + 2;
             if (currentY > this.topPos + this.imageHeight - 20) {
                 break;
