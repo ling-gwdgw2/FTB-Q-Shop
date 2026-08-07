@@ -40,7 +40,7 @@ public class CategoryEditModal {
         int modalY = topPos + (230 - modalHeight) / 2;
 
         this.nameBox = new EditBox(Minecraft.getInstance().font, modalX + 15, modalY + 32, 180, 16, Component.literal("Name"));
-        this.nameBox.setHint(Component.literal("Category Name (e.g. Magic)"));
+        this.nameBox.setHint(Component.literal("Category Name (e.g. Magic, Weapons)"));
         if (category != null) {
             this.nameBox.setValue(category.display());
         }
@@ -75,8 +75,11 @@ public class CategoryEditModal {
             catId = category.id();
             order = category.order();
         } else {
-            String path = name.toLowerCase().replaceAll("[^a-z0-9_]", "_");
-            if (path.isEmpty()) path = "cat_" + System.currentTimeMillis();
+            // Support Thai & Unicode category display names safely
+            String path = name.toLowerCase().replaceAll("[^a-z0-9_]", "");
+            if (path.isEmpty()) {
+                path = "cat_" + System.currentTimeMillis();
+            }
             catId = ResourceLocation.fromNamespaceAndPath("questshop", path);
         }
 

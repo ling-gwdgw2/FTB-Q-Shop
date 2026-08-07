@@ -70,55 +70,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         super.init();
 
         // 1. Sidebar Category Buttons (Left Panel)
-        categoryButtons.clear();
-        int catX = this.leftPos - 105;
-        int catY = this.topPos + 8;
-        int catWidth = 100;
-        int catHeight = 18;
-
-        Button allBtn = Button.builder(
-            Component.literal("All Items"),
-            b -> {
-                selectedCategory = null;
-                refreshEntries();
-            }
-        ).bounds(catX, catY, catWidth - 38, catHeight).build();
-        categoryButtons.add(allBtn);
-        this.addRenderableWidget(allBtn);
-
-        this.addCategoryBtn = Button.builder(
-            Component.literal("+ Cat"),
-            b -> openCategoryModal(null)
-        ).bounds(catX + 64, catY, 36, catHeight).tooltip(Tooltip.create(Component.literal("Add New Category"))).build();
-        this.addCategoryBtn.visible = false;
-        this.addRenderableWidget(this.addCategoryBtn);
-
-        int currentY = catY + catHeight + 2;
-        Map<ResourceLocation, ShopCategory> categories = ClientCategories.categories();
-        for (ShopCategory cat : categories.values()) {
-            String label = cat.display();
-            if (label.length() > 14) {
-                label = label.substring(0, 12) + "..";
-            }
-            ResourceLocation catId = cat.id();
-            Button catBtn = Button.builder(
-                Component.literal(label),
-                b -> {
-                    if (this.editMode && hasShiftDown()) {
-                        openCategoryModal(cat);
-                    } else {
-                        selectedCategory = catId;
-                        refreshEntries();
-                    }
-                }
-            ).bounds(catX, currentY, catWidth, catHeight).tooltip(Tooltip.create(Component.literal(cat.display() + (cat.unlockedByDefault() ? "" : " (Locked)")))).build();
-            categoryButtons.add(catBtn);
-            this.addRenderableWidget(catBtn);
-            currentY += catHeight + 2;
-            if (currentY > this.topPos + this.imageHeight - 20) {
-                break;
-            }
-        }
+        rebuildCategorySidebar();
 
         // 2. Search Box (EditBox at top)
         int searchX = this.leftPos + 8;
@@ -187,6 +139,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
                     this.editMode = !this.editMode;
                     b.setMessage(Component.literal(this.editMode ? "[Edit: ON]" : "[Edit: OFF]"));
                     refreshEditUI();
+                    rebuildCategorySidebar();
                 }
             ).bounds(toggleX, toggleY, 65, 14).build();
             this.addRenderableWidget(this.editToggleBtn);
@@ -229,6 +182,66 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         }
 
         refreshEntries();
+    }
+
+    public void rebuildCategorySidebar() {
+        for (Button btn : categoryButtons) {
+            this.removeWidget(btn);
+        }
+        categoryButtons.clear();
+
+        int catX = this.leftPos - 105;
+        int catY = this.topPos + 8;
+        int catWidth = 100;
+        int catHeight = 18;
+
+        Button allBtn = Button.builder(
+            Component.literal("All Items"),
+            b -> {
+                selectedCategory = null;
+                refreshEntries();
+            }
+        ).bounds(catX, catY, catWidth - 38, catHeight).build();
+        categoryButtons.add(allBtn);
+        this.addRenderableWidget(allBtn);
+
+        this.addCategoryBtn = Button.builder(
+            Component.literal("+ Cat"),
+            b -> openCategoryModal(null)
+        ).bounds(catX + 64, catY, 36, catHeight).tooltip(Tooltip.create(Component.literal("Add New Category"))).build();
+        this.addCategoryBtn.visible = this.editMode;
+        this.addRenderableWidget(this.addCategoryBtn);
+
+        int currentY = catY + catHeight + 2;
+        Map<ResourceLocation, ShopCategory> categories = ClientCategories.categories();
+        for (ShopCategory cat : categories.values()) {
+            String label = cat.display();
+            if (label.length() > 14) {
+                label = label.substring(0, 12) + "..";
+            }
+            ResourceLocation catId = cat.id();
+            String tooltipText = cat.display() + (cat.unlockedByDefault() ? "" : " (Locked)");
+            if (this.editMode) {
+                tooltipText += " [Shift+Click to Edit]";
+            }
+            Button catBtn = Button.builder(
+                Component.literal(label),
+                b -> {
+                    if (this.editMode && hasShiftDown()) {
+                        openCategoryModal(cat);
+                    } else {
+                        selectedCategory = catId;
+                        refreshEntries();
+                    }
+                }
+            ).bounds(catX, currentY, catWidth, catHeight).tooltip(Tooltip.create(Component.literal(tooltipText))).build();
+            categoryButtons.add(catBtn);
+            this.addRenderableWidget(catBtn);
+            currentY += catHeight + 2;
+            if (currentY > this.topPos + this.imageHeight - 20) {
+                break;
+            }
+        }
     }
 
     public void openItemPicker() {
@@ -275,7 +288,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         }
 
         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(held.getItem());
-        ResourceLocation catId = selectedCategory != null ? selectedCategory : ResourceLocation.fromNamespaceAndPath("questshop", "create_tech");
+        ResourceLocation catId = selectedCategory != null ? selectedCategory : ResourceLocation.fromNamespaceAndPath("questshop", "general");
 
         int amount = getQuantity();
         int cost = getPriceInput();
@@ -434,6 +447,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     }
 
     public void refreshEntries() {
+        rebuildCategorySidebar();
         List<ShopEntry> rawEntries = ClientShopData.get();
         String query = searchBox != null ? searchBox.getValue().toLowerCase().trim() : "";
 
