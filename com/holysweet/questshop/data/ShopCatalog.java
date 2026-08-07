@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -94,6 +95,73 @@ public final class ShopCatalog {
         List<ShopEntry> current = new ArrayList<>(allEntries());
         current.removeIf(e -> e.itemId().equals(itemId) && e.category().equals(categoryId));
         replace(categories(), current);
+    }
+
+    public void loadFromDisk(MinecraftServer server) {
+        try {
+            Map<ResourceLocation, ShopCategory> loadedCats = new HashMap<>(categories());
+            List<ShopEntry> loadedEntries = new ArrayList<>(allEntries());
+
+            // 1. Load Config Categories from config/questshop/shop_categories/*.json
+            File catDir = new File("config/questshop/shop_categories");
+            if (catDir.exists() && catDir.isDirectory()) {
+                File[] catFiles = catDir.listFiles((dir, name) -> name.endsWith(".json"));
+                if (catFiles != null) {
+                    Gson gson = new Gson();
+                    for (File f : catFiles) {
+                        try (FileReader reader = new FileReader(f)) {
+                            JsonObject obj = gson.fromJson(reader, JsonObject.class);
+                            if (obj != null) {
+                                String catName = f.getName().replace(".json", "");
+                                ResourceLocation catId = ResourceLocation.fromNamespaceAndPath("questshop", catName);
+                                String display = obj.has("display") ? obj.get("display").getAsString() : catName;
+                                boolean unlocked = !obj.has("unlocked_by_default") || obj.get("unlocked_by_default").getAsBoolean();
+                                int order = obj.has("order") ? obj.get("order").getAsInt() : 0;
+
+                                ShopCategory cat = new ShopCategory(catId, display, unlocked, order);
+                                loadedCats.put(catId, cat);
+                            }
+                        } catch (Exception e) {
+                            LOGGER.error("[FtbQshop] Failed to load category file {}", f.getName(), e);
+                        }
+                    }
+                }
+            }
+
+            // 2. Load Config Entries from config/questshop/shop_entries/*.json
+            File entryDir = new File("config/questshop/shop_entries");
+            if (entryDir.exists() && entryDir.isDirectory()) {
+                File[] entryFiles = entryDir.listFiles((dir, name) -> name.endsWith(".json"));
+                if (entryFiles != null) {
+                    Gson gson = new Gson();
+                    for (File f : entryFiles) {
+                        try (FileReader reader = new FileReader(f)) {
+                            JsonArray arr = gson.fromJson(reader, JsonArray.class);
+                            if (arr != null) {
+                                for (int i = 0; i < arr.size(); i++) {
+                                    JsonObject obj = arr.get(i).getAsJsonObject();
+                                    ResourceLocation item = ResourceLocation.parse(obj.get("item").getAsString());
+                                    int amount = obj.has("amount") ? obj.get("amount").getAsInt() : 1;
+                                    int cost = obj.has("cost") ? obj.get("cost").getAsInt() : 10;
+                                    ResourceLocation cat = ResourceLocation.parse(obj.get("category").getAsString());
+
+                                    ShopEntry entry = new ShopEntry(item, amount, cost, cat);
+                                    loadedEntries.removeIf(e -> e.itemId().equals(item) && e.category().equals(cat));
+                                    loadedEntries.add(entry);
+                                }
+                            }
+                        } catch (Exception e) {
+                            LOGGER.error("[FtbQshop] Failed to load entry file {}", f.getName(), e);
+                        }
+                    }
+                }
+            }
+
+            replace(loadedCats, loadedEntries);
+            LOGGER.info("[FtbQshop] Successfully loaded catalog from disk (Categories: {}, Entries: {})", loadedCats.size(), loadedEntries.size());
+        } catch (Exception e) {
+            LOGGER.error("[FtbQshop] Error loading catalog from disk", e);
+        }
     }
 
     public void saveCategoriesToDisk(MinecraftServer server) {

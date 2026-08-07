@@ -41,6 +41,10 @@ public class CategoryEditModal {
 
         this.nameBox = new EditBox(Minecraft.getInstance().font, modalX + 15, modalY + 32, 180, 16, Component.literal("Name"));
         this.nameBox.setHint(Component.literal("Category Name (e.g. Magic, Weapons)"));
+        this.nameBox.setMaxLength(64);
+        this.nameBox.setCanLoseFocus(false);
+        this.nameBox.setFocused(true);
+
         if (category != null) {
             this.nameBox.setValue(category.display());
         }
@@ -132,14 +136,14 @@ public class CategoryEditModal {
             parent.closeCategoryModal();
             return true;
         }
-        if (nameBox != null && nameBox.isFocused() && nameBox.keyPressed(keyCode, scanCode, modifiers)) {
+        if (nameBox != null && nameBox.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }
         return true;
     }
 
     public boolean charTyped(char codePoint, int modifiers) {
-        if (nameBox != null && nameBox.isFocused() && nameBox.charTyped(codePoint, modifiers)) {
+        if (nameBox != null && nameBox.charTyped(codePoint, modifiers)) {
             return true;
         }
         return true;
