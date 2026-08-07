@@ -1,5 +1,6 @@
 package com.holysweet.questshop.network;
 
+import com.holysweet.questshop.api.ShopCategory;
 import com.holysweet.questshop.api.ShopEntry;
 import com.holysweet.questshop.client.ClientCategories;
 import com.holysweet.questshop.client.ClientCoins;
@@ -74,6 +75,25 @@ public class Net {
         });
 
         // Creative / Admin Editing Payloads
+        registrar.playToServer(AdminUpdateCategoryPayload.TYPE, AdminUpdateCategoryPayload.CODEC, (payload, ctx) -> {
+            ctx.enqueueWork(() -> {
+                if (ctx.player() instanceof ServerPlayer player) {
+                    if (player.isCreative() || player.hasPermissions(2)) {
+                        if (payload.delete()) {
+                            ShopCatalog.INSTANCE.removeCategory(payload.categoryId());
+                        } else {
+                            ShopCategory newCat = new ShopCategory(payload.categoryId(), payload.display(), payload.unlockedByDefault(), payload.order());
+                            ShopCatalog.INSTANCE.addOrUpdateCategory(newCat);
+                        }
+                        ShopCatalog.INSTANCE.saveCategoriesToDisk(player.serverLevel().getServer());
+                        ShopCatalog.INSTANCE.saveToDisk(player.serverLevel().getServer());
+                        PacketDistributor.sendToAllPlayers(new CategoriesSnapshotPayload(ShopCatalog.INSTANCE.categories(), java.util.Set.of()));
+                        PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
+                    }
+                }
+            });
+        });
+
         registrar.playToServer(AdminUpdateEntryPayload.TYPE, AdminUpdateEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
                 if (ctx.player() instanceof ServerPlayer player) {

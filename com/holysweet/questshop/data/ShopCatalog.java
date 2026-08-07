@@ -69,6 +69,20 @@ public final class ShopCatalog {
         return result;
     }
 
+    public void addOrUpdateCategory(ShopCategory newCategory) {
+        Map<ResourceLocation, ShopCategory> currentCats = new HashMap<>(categories());
+        currentCats.put(newCategory.id(), newCategory);
+        replace(currentCats, allEntries());
+    }
+
+    public void removeCategory(ResourceLocation categoryId) {
+        Map<ResourceLocation, ShopCategory> currentCats = new HashMap<>(categories());
+        currentCats.remove(categoryId);
+        List<ShopEntry> currentEntries = new ArrayList<>(allEntries());
+        currentEntries.removeIf(e -> e.category().equals(categoryId));
+        replace(currentCats, currentEntries);
+    }
+
     public void addOrUpdateEntry(ShopEntry newEntry) {
         List<ShopEntry> current = new ArrayList<>(allEntries());
         current.removeIf(e -> e.itemId().equals(newEntry.itemId()) && e.category().equals(newEntry.category()));
@@ -80,6 +94,31 @@ public final class ShopCatalog {
         List<ShopEntry> current = new ArrayList<>(allEntries());
         current.removeIf(e -> e.itemId().equals(itemId) && e.category().equals(categoryId));
         replace(categories(), current);
+    }
+
+    public void saveCategoriesToDisk(MinecraftServer server) {
+        try {
+            File configDir = new File("config/questshop/shop_categories");
+            if (!configDir.exists()) {
+                configDir.mkdirs();
+            }
+
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            for (ShopCategory cat : categories().values()) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("display", cat.display());
+                obj.addProperty("unlocked_by_default", cat.unlockedByDefault());
+                obj.addProperty("order", cat.order());
+
+                File file = new File(configDir, cat.id().getPath() + ".json");
+                try (FileWriter writer = new FileWriter(file)) {
+                    gson.toJson(obj, writer);
+                }
+            }
+            LOGGER.info("[FtbQshop] Successfully saved shop categories to {}", configDir.getAbsolutePath());
+        } catch (IOException ex) {
+            LOGGER.error("[FtbQshop] Failed to save shop categories to disk", ex);
+        }
     }
 
     public void saveToDisk(MinecraftServer server) {

@@ -50,8 +50,10 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     private Button addHandItemBtn;
     private Button editPriceBtn;
     private Button removeBtn;
+    private Button addCategoryBtn;
 
     private ShopItemPickerModal activePicker = null;
+    private CategoryEditModal activeCategoryModal = null;
 
     private ResourceLocation selectedCategory = null;
     private final List<Button> categoryButtons = new ArrayList<>();
@@ -80,9 +82,16 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
                 selectedCategory = null;
                 refreshEntries();
             }
-        ).bounds(catX, catY, catWidth, catHeight).build();
+        ).bounds(catX, catY, catWidth - 38, catHeight).build();
         categoryButtons.add(allBtn);
         this.addRenderableWidget(allBtn);
+
+        this.addCategoryBtn = Button.builder(
+            Component.literal("+ Cat"),
+            b -> openCategoryModal(null)
+        ).bounds(catX + 64, catY, 36, catHeight).tooltip(Tooltip.create(Component.literal("Add New Category"))).build();
+        this.addCategoryBtn.visible = false;
+        this.addRenderableWidget(this.addCategoryBtn);
 
         int currentY = catY + catHeight + 2;
         Map<ResourceLocation, ShopCategory> categories = ClientCategories.categories();
@@ -95,10 +104,14 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             Button catBtn = Button.builder(
                 Component.literal(label),
                 b -> {
-                    selectedCategory = catId;
-                    refreshEntries();
+                    if (this.editMode && hasShiftDown()) {
+                        openCategoryModal(cat);
+                    } else {
+                        selectedCategory = catId;
+                        refreshEntries();
+                    }
                 }
-            ).bounds(catX, currentY, catWidth, catHeight).tooltip(Tooltip.create(Component.literal(cat.display()))).build();
+            ).bounds(catX, currentY, catWidth, catHeight).tooltip(Tooltip.create(Component.literal(cat.display() + (cat.unlockedByDefault() ? "" : " (Locked)")))).build();
             categoryButtons.add(catBtn);
             this.addRenderableWidget(catBtn);
             currentY += catHeight + 2;
@@ -211,6 +224,10 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             this.activePicker.init(this.leftPos, this.topPos);
         }
 
+        if (this.activeCategoryModal != null) {
+            this.activeCategoryModal.init(this.leftPos, this.topPos);
+        }
+
         refreshEntries();
     }
 
@@ -223,9 +240,19 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         this.activePicker = null;
     }
 
+    public void openCategoryModal(ShopCategory category) {
+        this.activeCategoryModal = new CategoryEditModal(this, category);
+        this.activeCategoryModal.init(this.leftPos, this.topPos);
+    }
+
+    public void closeCategoryModal() {
+        this.activeCategoryModal = null;
+    }
+
     private void refreshEditUI() {
         boolean showEdit = this.editMode;
 
+        if (this.addCategoryBtn != null) this.addCategoryBtn.visible = showEdit;
         if (this.browseItemsBtn != null) this.browseItemsBtn.visible = showEdit;
         if (this.addHandItemBtn != null) this.addHandItemBtn.visible = showEdit;
         if (this.editPriceBtn != null) this.editPriceBtn.visible = showEdit;
@@ -334,6 +361,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.activeCategoryModal != null) {
+            return this.activeCategoryModal.mouseClicked(mouseX, mouseY, button);
+        }
         if (this.activePicker != null) {
             return this.activePicker.mouseClicked(mouseX, mouseY, button);
         }
@@ -342,6 +372,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.activeCategoryModal != null) {
+            return this.activeCategoryModal.keyPressed(keyCode, scanCode, modifiers);
+        }
         if (this.activePicker != null) {
             return this.activePicker.keyPressed(keyCode, scanCode, modifiers);
         }
@@ -373,6 +406,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
+        if (this.activeCategoryModal != null) {
+            return this.activeCategoryModal.charTyped(codePoint, modifiers);
+        }
         if (this.activePicker != null) {
             return this.activePicker.charTyped(codePoint, modifiers);
         }
@@ -427,7 +463,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
 
-        if (this.activePicker != null) {
+        if (this.activeCategoryModal != null) {
+            this.activeCategoryModal.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
+        } else if (this.activePicker != null) {
             this.activePicker.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
         }
     }
@@ -472,7 +510,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
         if (!this.purchasePending && this.list != null && this.list.getSelected() != null) {
             ShopListEntry selected = (ShopListEntry) this.list.getSelected();
-            if (selected != null && selected.data == null) {
+            if (selected != null && selected.data != null) {
                 ShopEntry data = selected.data;
                 int totalCost = data.cost() * qty;
                 int totalItems = data.amount() * qty;
