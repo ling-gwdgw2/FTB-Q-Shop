@@ -72,6 +72,32 @@ public class Net {
                 handleBuy(ctx.player(), payload);
             });
         });
+
+        // Creative / Admin Editing Payloads
+        registrar.playToServer(AdminUpdateEntryPayload.TYPE, AdminUpdateEntryPayload.CODEC, (payload, ctx) -> {
+            ctx.enqueueWork(() -> {
+                if (ctx.player() instanceof ServerPlayer player) {
+                    if (player.isCreative() || player.hasPermissions(2)) {
+                        ShopEntry newEntry = new ShopEntry(payload.itemId(), payload.amount(), payload.cost(), payload.category());
+                        ShopCatalog.INSTANCE.addOrUpdateEntry(newEntry);
+                        ShopCatalog.INSTANCE.saveToDisk(player.serverLevel().getServer());
+                        PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
+                    }
+                }
+            });
+        });
+
+        registrar.playToServer(AdminRemoveEntryPayload.TYPE, AdminRemoveEntryPayload.CODEC, (payload, ctx) -> {
+            ctx.enqueueWork(() -> {
+                if (ctx.player() instanceof ServerPlayer player) {
+                    if (player.isCreative() || player.hasPermissions(2)) {
+                        ShopCatalog.INSTANCE.removeEntry(payload.itemId(), payload.category());
+                        ShopCatalog.INSTANCE.saveToDisk(player.serverLevel().getServer());
+                        PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
+                    }
+                }
+            });
+        });
     }
 
     public static void syncBalance(ServerPlayer player) {

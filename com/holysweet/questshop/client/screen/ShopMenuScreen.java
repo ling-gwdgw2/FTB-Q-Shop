@@ -7,6 +7,8 @@ import com.holysweet.questshop.client.ClientCoins;
 import com.holysweet.questshop.client.ClientFX;
 import com.holysweet.questshop.client.ClientShopData;
 import com.holysweet.questshop.menu.ShopMenu;
+import com.holysweet.questshop.network.payload.AdminRemoveEntryPayload;
+import com.holysweet.questshop.network.payload.AdminUpdateEntryPayload;
 import com.holysweet.questshop.network.payload.BuyEntryPayload;
 import com.holysweet.questshop.network.payload.BuyResultPayload;
 import com.mojang.logging.LogUtils;
@@ -16,9 +18,11 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.slf4j.Logger;
 
@@ -33,10 +37,18 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     private Button buyButton;
     private EditBox searchBox;
     private EditBox qtyBox;
+    private EditBox priceBox;
     private Button minusBtn;
     private Button plusBtn;
     private Button stackBtn;
     private Button maxBtn;
+
+    // Creative / Admin Edit Mode Controls
+    private boolean editMode = false;
+    private Button editToggleBtn;
+    private Button addHandItemBtn;
+    private Button editPriceBtn;
+    private Button removeBtn;
 
     private ResourceLocation selectedCategory = null;
     private final List<Button> categoryButtons = new ArrayList<>();
@@ -103,7 +115,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
         // 3. Shop List Widget
         int listY = searchY + 20;
-        int listHeight = this.imageHeight - 88;
+        int listHeight = this.imageHeight - 92;
         this.list = new ShopList(Minecraft.getInstance(), this.imageWidth - 16, listHeight, listY, 20);
         this.list.setX(this.leftPos + 8);
         this.list.setOnSelectionChanged(this::updateButtonState);
@@ -113,20 +125,28 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int panelY = this.topPos + this.imageHeight - 24;
         
         // Quantity label and EditBox
-        this.qtyBox = new EditBox(this.font, this.leftPos + 8, panelY, 36, 16, Component.literal("Qty"));
+        this.qtyBox = new EditBox(this.font, this.leftPos + 8, panelY, 32, 16, Component.literal("Qty"));
         this.qtyBox.setValue("1");
+        this.qtyBox.setHint(Component.literal("Qty"));
         this.qtyBox.setResponder(text -> updateButtonState());
         this.addRenderableWidget(this.qtyBox);
 
+        // Price EditBox (for Admin Edit Mode)
+        this.priceBox = new EditBox(this.font, this.leftPos + 44, panelY, 40, 16, Component.literal("Cost"));
+        this.priceBox.setValue("10");
+        this.priceBox.setHint(Component.literal("Gems"));
+        this.priceBox.visible = false;
+        this.addRenderableWidget(this.priceBox);
+
         // [-] [+] [x64] [MAX] buttons
         this.minusBtn = Button.builder(Component.literal("-"), b -> changeQty(-1))
-                .bounds(this.leftPos + 46, panelY, 14, 16).build();
+                .bounds(this.leftPos + 44, panelY, 14, 16).build();
         this.plusBtn = Button.builder(Component.literal("+"), b -> changeQty(1))
-                .bounds(this.leftPos + 61, panelY, 14, 16).build();
+                .bounds(this.leftPos + 59, panelY, 14, 16).build();
         this.stackBtn = Button.builder(Component.literal("x64"), b -> setQty(64))
-                .bounds(this.leftPos + 77, panelY, 26, 16).build();
+                .bounds(this.leftPos + 75, panelY, 26, 16).build();
         this.maxBtn = Button.builder(Component.literal("MAX"), b -> setMaxQty())
-                .bounds(this.leftPos + 105, panelY, 30, 16).build();
+                .bounds(this.leftPos + 103, panelY, 30, 16).build();
 
         this.addRenderableWidget(this.minusBtn);
         this.addRenderableWidget(this.plusBtn);
@@ -134,14 +154,106 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         this.addRenderableWidget(this.maxBtn);
 
         // Buy Button
-        int buyX = this.leftPos + 138;
-        int buyWidth = this.imageWidth - 146;
+        int buyX = this.leftPos + 136;
+        int buyWidth = this.imageWidth - 144;
         this.buyButton = Button.builder(Component.literal("Buy Item"), this::buttonClick)
                 .bounds(buyX, panelY, buyWidth, 16)
                 .build();
         this.addRenderableWidget(this.buyButton);
 
+        // Creative Mode Controls Initialization
+        if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isCreative()) {
+            int toggleX = this.leftPos + 70;
+            int toggleY = this.topPos + 4;
+            this.editToggleBtn = Button.builder(
+                Component.literal("[Edit: OFF]"),
+                b -> {
+                    this.editMode = !this.editMode;
+                    b.setMessage(Component.literal(this.editMode ? "[Edit: ON]" : "[Edit: OFF]"));
+                    refreshEditUI();
+                }
+            ).bounds(toggleX, toggleY, 65, 14).build();
+            this.addRenderableWidget(this.editToggleBtn);
+
+            int adminPanelY = this.topPos + this.imageHeight - 44;
+            this.addHandItemBtn = Button.builder(
+                Component.literal("+ Add Hand Item"),
+                b -> addHandItemToShop()
+            ).bounds(this.leftPos + 8, adminPanelY, 95, 16).build();
+
+            this.editPriceBtn = Button.builder(
+                Component.literal("Save Price"),
+                b -> updateSelectedItem()
+            ).bounds(this.leftPos + 107, adminPanelY, 65, 16).build();
+
+            this.removeBtn = Button.builder(
+                Component.literal("Remove"),
+                b -> removeSelectedItem()
+            ).bounds(this.leftPos + 176, adminPanelY, 55, 16).build();
+
+            this.addRenderableWidget(this.addHandItemBtn);
+            this.addRenderableWidget(this.editPriceBtn);
+            this.addRenderableWidget(this.removeBtn);
+
+            refreshEditUI();
+        }
+
         refreshEntries();
+    }
+
+    private void refreshEditUI() {
+        boolean showEdit = this.editMode;
+
+        if (this.addHandItemBtn != null) this.addHandItemBtn.visible = showEdit;
+        if (this.editPriceBtn != null) this.editPriceBtn.visible = showEdit;
+        if (this.removeBtn != null) this.removeBtn.visible = showEdit;
+        if (this.priceBox != null) this.priceBox.visible = showEdit;
+
+        // Hide normal qty buttons when priceBox is shown
+        if (this.minusBtn != null) this.minusBtn.visible = !showEdit;
+        if (this.plusBtn != null) this.plusBtn.visible = !showEdit;
+        if (this.stackBtn != null) this.stackBtn.visible = !showEdit;
+        if (this.maxBtn != null) this.maxBtn.visible = !showEdit;
+    }
+
+    private void addHandItemToShop() {
+        if (Minecraft.getInstance().player == null) return;
+        ItemStack held = Minecraft.getInstance().player.getMainHandItem();
+        if (held.isEmpty()) {
+            ClientFX.purchaseError(Component.literal("Hold an item in main hand!"));
+            return;
+        }
+
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(held.getItem());
+        ResourceLocation catId = selectedCategory != null ? selectedCategory : ResourceLocation.fromNamespaceAndPath("questshop", "create_tech");
+
+        int amount = getQuantity();
+        int cost = getPriceInput();
+
+        PacketDistributor.sendToServer(new AdminUpdateEntryPayload(itemId, amount, cost, catId));
+        ClientFX.purchaseOk(itemId, amount, cost);
+    }
+
+    private void updateSelectedItem() {
+        if (this.list == null || this.list.getSelected() == null) return;
+        ShopListEntry selected = (ShopListEntry) this.list.getSelected();
+        if (selected == null || selected.data == null) return;
+
+        ShopEntry oldData = selected.data;
+        int newAmount = getQuantity();
+        int newCost = getPriceInput();
+
+        PacketDistributor.sendToServer(new AdminUpdateEntryPayload(oldData.itemId(), newAmount, newCost, oldData.category()));
+        ClientFX.purchaseOk(oldData.itemId(), newAmount, newCost);
+    }
+
+    private void removeSelectedItem() {
+        if (this.list == null || this.list.getSelected() == null) return;
+        ShopListEntry selected = (ShopListEntry) this.list.getSelected();
+        if (selected == null || selected.data == null) return;
+
+        ShopEntry oldData = selected.data;
+        PacketDistributor.sendToServer(new AdminRemoveEntryPayload(oldData.itemId(), oldData.category()));
     }
 
     private int getQuantity() {
@@ -153,6 +265,18 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             return Math.max(1, Math.min(999, q));
         } catch (NumberFormatException e) {
             return 1;
+        }
+    }
+
+    private int getPriceInput() {
+        if (this.priceBox == null) return 10;
+        try {
+            String val = this.priceBox.getValue().trim();
+            if (val.isEmpty()) return 10;
+            int p = Integer.parseInt(val);
+            return Math.max(0, Math.min(99999, p));
+        } catch (NumberFormatException e) {
+            return 10;
         }
     }
 
@@ -189,17 +313,22 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         boolean searchFocused = this.searchBox != null && this.searchBox.isFocused();
         boolean qtyFocused = this.qtyBox != null && this.qtyBox.isFocused();
+        boolean priceFocused = this.priceBox != null && this.priceBox.isFocused();
 
-        if (searchFocused || qtyFocused) {
+        if (searchFocused || qtyFocused || priceFocused) {
             if (keyCode == 256) { // ESC key
                 if (searchFocused) this.searchBox.setFocused(false);
                 if (qtyFocused) this.qtyBox.setFocused(false);
+                if (priceFocused) this.priceBox.setFocused(false);
                 return true;
             }
             if (searchFocused && this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
                 return true;
             }
             if (qtyFocused && this.qtyBox.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
+            if (priceFocused && this.priceBox.keyPressed(keyCode, scanCode, modifiers)) {
                 return true;
             }
             return true;
@@ -212,6 +341,12 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         if (this.qtyBox != null && this.qtyBox.isFocused()) {
             if (Character.isDigit(codePoint)) {
                 return this.qtyBox.charTyped(codePoint, modifiers);
+            }
+            return true;
+        }
+        if (this.priceBox != null && this.priceBox.isFocused()) {
+            if (Character.isDigit(codePoint)) {
+                return this.priceBox.charTyped(codePoint, modifiers);
             }
             return true;
         }
@@ -300,6 +435,10 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
                 int totalItems = data.amount() * qty;
 
                 this.buyButton.setMessage(Component.literal("Buy x" + totalItems + " (" + totalCost + " Gems)"));
+
+                if (this.priceBox != null && this.priceBox.visible) {
+                    this.priceBox.setValue(String.valueOf(data.cost()));
+                }
 
                 if (ClientCategories.isUnlocked(data.category()) && ClientCoins.get() >= totalCost) {
                     canBuy = true;
