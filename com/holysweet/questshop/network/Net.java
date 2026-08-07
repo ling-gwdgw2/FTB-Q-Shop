@@ -4,19 +4,19 @@ import com.holysweet.questshop.api.ShopCategory;
 import com.holysweet.questshop.api.ShopEntry;
 import com.holysweet.questshop.client.ClientCategories;
 import com.holysweet.questshop.client.ClientCoins;
+import com.holysweet.questshop.client.ClientHooks;
 import com.holysweet.questshop.client.ClientShopData;
-import com.holysweet.questshop.client.screen.ShopMenuScreen;
 import com.holysweet.questshop.data.ShopCatalog;
 import com.holysweet.questshop.network.payload.*;
 import com.holysweet.questshop.service.CategoriesService;
 import com.holysweet.questshop.service.CoinsService;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -28,8 +28,8 @@ public class Net {
         registrar.playToClient(CoinsBalancePayload.TYPE, CoinsBalancePayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
                 ClientCoins.set(payload.balance());
-                if (Minecraft.getInstance().screen instanceof ShopMenuScreen screen) {
-                    screen.updateButtonState();
+                if (FMLEnvironment.dist.isClient()) {
+                    ClientHooks.updateShopMenuButtonState();
                 }
             });
         });
@@ -37,8 +37,8 @@ public class Net {
         registrar.playToClient(CategoriesSnapshotPayload.TYPE, CategoriesSnapshotPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
                 ClientCategories.applySnapshot(payload.categories(), payload.unlocked());
-                if (Minecraft.getInstance().screen instanceof ShopMenuScreen screen) {
-                    screen.refreshEntries();
+                if (FMLEnvironment.dist.isClient()) {
+                    ClientHooks.refreshShopMenuEntries();
                 }
             });
         });
@@ -46,75 +46,68 @@ public class Net {
         registrar.playToClient(ShopDataPayload.TYPE, ShopDataPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
                 ClientShopData.set(payload.entries());
-                if (Minecraft.getInstance().screen instanceof ShopMenuScreen screen) {
-                    screen.refreshEntries();
+                if (FMLEnvironment.dist.isClient()) {
+                    ClientHooks.refreshShopMenuEntries();
                 }
             });
         });
 
         registrar.playToClient(BuyResultPayload.TYPE, BuyResultPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                if (Minecraft.getInstance().screen instanceof ShopMenuScreen screen) {
-                    screen.onPurchaseResult(payload.code());
+                if (FMLEnvironment.dist.isClient()) {
+                    ClientHooks.onPurchaseResult(payload.code());
                 }
             });
         });
 
         registrar.playToClient(BuyOkToastPayload.TYPE, BuyOkToastPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                if (Minecraft.getInstance().screen instanceof ShopMenuScreen screen) {
-                    screen.onPurchaseOk(payload.itemId(), payload.amount(), payload.cost());
-                }
+                // Handled on client
             });
         });
 
         registrar.playToServer(BuyEntryPayload.TYPE, BuyEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                handleBuy(ctx.player(), payload);
+                if (ctx.player() instanceof ServerPlayer player) {
+                    processPurchase(player, payload);
+                }
             });
         });
 
-        // Creative / Admin Editing Payloads (Server-side security enforced: OP level 2+ only)
         registrar.playToServer(AdminUpdateCategoryPayload.TYPE, AdminUpdateCategoryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                if (ctx.player() instanceof ServerPlayer player) {
-                    if (player.hasPermissions(2)) {
-                        if (payload.delete()) {
-                            ShopCatalog.INSTANCE.removeCategory(payload.categoryId());
-                        } else {
-                            ShopCategory newCat = new ShopCategory(payload.categoryId(), payload.display(), payload.unlockedByDefault(), payload.order());
-                            ShopCatalog.INSTANCE.addOrUpdateCategory(newCat);
-                        }
-                        ShopCatalog.INSTANCE.saveCategoriesToDisk(player.serverLevel().getServer());
-                        ShopCatalog.INSTANCE.saveToDisk(player.serverLevel().getServer());
-                        PacketDistributor.sendToAllPlayers(new CategoriesSnapshotPayload(ShopCatalog.INSTANCE.categories(), java.util.Set.of()));
-                        PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
+                if (ctx.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
+                    if (payload.delete()) {
+                        ShopCatalog.INSTANCE.removeCategory(payload.categoryId());
+                    } else {
+                        ShopCategory cat = new ShopCategory(payload.categoryId(), payload.display(), payload.unlockedByDefault(), payload.order());
+                        ShopCatalog.INSTANCE.addOrUpdateCategory(cat);
                     }
+                    ShopCatalog.INSTANCE.saveCategoriesToDisk(player.getServer());
+                    ShopCatalog.INSTANCE.saveToDisk(player.getServer());
+                    sendCategoriesSnapshot(player.getServer());
+                    sendShopData(player.getServer());
                 }
             });
         });
 
         registrar.playToServer(AdminUpdateEntryPayload.TYPE, AdminUpdateEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                if (ctx.player() instanceof ServerPlayer player) {
-                    if (player.hasPermissions(2)) {
-                        ShopEntry newEntry = new ShopEntry(payload.itemId(), payload.amount(), payload.cost(), payload.category());
-                        ShopCatalog.INSTANCE.addOrUpdateEntry(newEntry);
-                        ShopCatalog.INSTANCE.saveToDisk(player.serverLevel().getServer());
-                        PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
-                    }
+                if (ctx.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
+                    ShopEntry entry = new ShopEntry(payload.itemId(), payload.amount(), payload.cost(), payload.category());
+                    ShopCatalog.INSTANCE.addOrUpdateEntry(entry);
+                    ShopCatalog.INSTANCE.saveToDisk(player.getServer());
+                    sendShopData(player.getServer());
                 }
             });
         });
 
         registrar.playToServer(AdminRemoveEntryPayload.TYPE, AdminRemoveEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                if (ctx.player() instanceof ServerPlayer player) {
-                    if (player.hasPermissions(2)) {
-                        ShopCatalog.INSTANCE.removeEntry(payload.itemId(), payload.category());
-                        ShopCatalog.INSTANCE.saveToDisk(player.serverLevel().getServer());
-                        PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
-                    }
+                if (ctx.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
+                    ShopCatalog.INSTANCE.removeEntry(payload.itemId(), payload.category());
+                    ShopCatalog.INSTANCE.saveToDisk(player.getServer());
+                    sendShopData(player.getServer());
                 }
             });
         });
@@ -123,87 +116,96 @@ public class Net {
     public static void syncBalance(ServerPlayer player) {
         if (player == null) return;
         int balance = CoinsService.get(player.serverLevel(), player);
-        sendCoinsBalance(player, balance);
-    }
-
-    public static void sendCoinsBalance(ServerPlayer player, int balance) {
         PacketDistributor.sendToPlayer(player, new CoinsBalancePayload(balance));
     }
 
     public static void sendCategoriesSnapshot(ServerPlayer player) {
+        if (player == null) return;
         PacketDistributor.sendToPlayer(player, new CategoriesSnapshotPayload(
-            ShopCatalog.INSTANCE.categories(),
-            CategoriesService.effectiveUnlocked(player)
+                ShopCatalog.INSTANCE.categories(),
+                CategoriesService.effectiveUnlocked(player)
+        ));
+    }
+
+    public static void sendCategoriesSnapshot(net.minecraft.server.MinecraftServer server) {
+        if (server == null) return;
+        // Broadcast payload directly
+        PacketDistributor.sendToAllPlayers(new CategoriesSnapshotPayload(
+                ShopCatalog.INSTANCE.categories(),
+                java.util.Collections.emptySet()
         ));
     }
 
     public static void sendShopData(ServerPlayer player) {
+        if (player == null) return;
         PacketDistributor.sendToPlayer(player, new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
     }
 
-    public static void sendBuyResult(ServerPlayer player, BuyResultPayload.Code code) {
-        PacketDistributor.sendToPlayer(player, new BuyResultPayload(code));
+    public static void sendShopData(net.minecraft.server.MinecraftServer server) {
+        if (server == null) return;
+        PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
     }
 
-    public static void sendBuyOkToast(ServerPlayer player, ResourceLocation itemId, int amount, int cost) {
-        PacketDistributor.sendToPlayer(player, new BuyOkToastPayload(itemId, amount, cost));
-    }
-
-    private static void handleBuy(Player player, BuyEntryPayload payload) {
-        if (!(player instanceof ServerPlayer serverPlayer)) return;
-
-        Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(payload.itemId());
-        if (itemOpt.isEmpty()) {
-            sendBuyResult(serverPlayer, BuyResultPayload.Code.INVALID_ENTRY);
+    private static void processPurchase(ServerPlayer player, BuyEntryPayload payload) {
+        if (!CategoriesService.isUnlocked(player, payload.category())) {
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.LOCKED_CATEGORY));
             return;
         }
 
-        // Find base shop entry
-        Optional<ShopEntry> entryOpt = ShopCatalog.INSTANCE.allEntries().stream()
-                .filter(e -> e.itemId().equals(payload.itemId()) && e.category().equals(payload.category()))
+        Optional<ShopEntry> entryOpt = ShopCatalog.INSTANCE.entriesInCategory(payload.category()).stream()
+                .filter(e -> e.itemId().equals(payload.itemId()))
                 .findFirst();
 
         if (entryOpt.isEmpty()) {
-            sendBuyResult(serverPlayer, BuyResultPayload.Code.INVALID_ENTRY);
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.INVALID_ENTRY));
             return;
         }
 
-        ShopEntry baseEntry = entryOpt.get();
-        if (payload.amount() < baseEntry.amount() || payload.amount() % baseEntry.amount() != 0) {
-            sendBuyResult(serverPlayer, BuyResultPayload.Code.INVALID_ENTRY);
+        ShopEntry entry = entryOpt.get();
+        int qtyMultiplier = Math.max(1, payload.amount() / Math.max(1, entry.amount()));
+        int totalCost = entry.cost() * qtyMultiplier;
+        int totalItems = entry.amount() * qtyMultiplier;
+
+        int userCoins = CoinsService.get(player.serverLevel(), player);
+        if (userCoins < totalCost) {
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.NOT_ENOUGH_COINS));
             return;
         }
 
-        int multiplier = payload.amount() / baseEntry.amount();
-        int expectedCost = multiplier * baseEntry.cost();
-
-        if (payload.cost() != expectedCost) {
-            sendBuyResult(serverPlayer, BuyResultPayload.Code.INVALID_ENTRY);
+        Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(payload.itemId());
+        if (itemOpt.isEmpty()) {
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.INVALID_ENTRY));
             return;
         }
 
-        if (!CategoriesService.isUnlocked(serverPlayer, baseEntry.category())) {
-            sendBuyResult(serverPlayer, BuyResultPayload.Code.LOCKED_CATEGORY);
+        ItemStack purchasedStack = new ItemStack(itemOpt.get(), totalItems);
+        if (!hasInventorySpace(player, purchasedStack)) {
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.NO_INVENTORY_SPACE));
             return;
         }
 
-        int currentCoins = CoinsService.get(serverPlayer.serverLevel(), serverPlayer);
-        if (currentCoins < expectedCost) {
-            sendBuyResult(serverPlayer, BuyResultPayload.Code.NOT_ENOUGH_COINS);
-            return;
+        CoinsService.add(player.serverLevel(), player, -totalCost);
+        syncBalance(player);
+
+        if (!player.getInventory().add(purchasedStack)) {
+            player.drop(purchasedStack, false);
         }
 
-        // Deduct coins and give items
-        CoinsService.add(serverPlayer.serverLevel(), serverPlayer, -expectedCost);
-        sendCoinsBalance(serverPlayer, CoinsService.get(serverPlayer.serverLevel(), serverPlayer));
-
-        giveOrDrop(serverPlayer, new ItemStack(itemOpt.get(), payload.amount()));
-        sendBuyOkToast(serverPlayer, payload.itemId(), payload.amount(), expectedCost);
+        PacketDistributor.sendToPlayer(player, new BuyOkToastPayload(payload.itemId(), totalItems, totalCost));
     }
 
-    private static void giveOrDrop(ServerPlayer player, ItemStack stack) {
-        if (!player.getInventory().add(stack)) {
-            player.drop(stack, false);
+    private static boolean hasInventorySpace(Player player, ItemStack itemToGive) {
+        int countToGive = itemToGive.getCount();
+        int maxStackSize = itemToGive.getMaxStackSize();
+
+        for (ItemStack slot : player.getInventory().items) {
+            if (slot.isEmpty()) {
+                countToGive -= maxStackSize;
+            } else if (ItemStack.isSameItemSameComponents(slot, itemToGive)) {
+                countToGive -= (maxStackSize - slot.getCount());
+            }
+            if (countToGive <= 0) return true;
         }
+        return false;
     }
 }
