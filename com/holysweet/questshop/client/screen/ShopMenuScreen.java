@@ -22,6 +22,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.slf4j.Logger;
@@ -46,11 +48,13 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     // Creative / Admin Edit Mode Controls
     private boolean editMode = false;
     private Button editToggleBtn;
+    private Button browseItemsBtn;
     private Button addHandItemBtn;
     private Button editPriceBtn;
     private Button removeBtn;
 
     private ShopEditModal activeModal = null;
+    private ShopItemPickerModal activePicker = null;
 
     private ResourceLocation selectedCategory = null;
     private final List<Button> categoryButtons = new ArrayList<>();
@@ -178,21 +182,27 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             this.addRenderableWidget(this.editToggleBtn);
 
             int adminPanelY = this.topPos + this.imageHeight - 44;
-            this.addHandItemBtn = Button.builder(
-                Component.literal("+ Add Hand Item"),
-                b -> addHandItemToShop()
+            this.browseItemsBtn = Button.builder(
+                Component.literal("+ Browse Items"),
+                b -> openItemPicker()
             ).bounds(this.leftPos + 8, adminPanelY, 95, 16).build();
 
+            this.addHandItemBtn = Button.builder(
+                Component.literal("+ Hand"),
+                b -> addHandItemToShop()
+            ).bounds(this.leftPos + 107, adminPanelY, 50, 16).build();
+
             this.editPriceBtn = Button.builder(
-                Component.literal("Save Price"),
+                Component.literal("Save"),
                 b -> updateSelectedItem()
-            ).bounds(this.leftPos + 107, adminPanelY, 65, 16).build();
+            ).bounds(this.leftPos + 161, adminPanelY, 40, 16).build();
 
             this.removeBtn = Button.builder(
                 Component.literal("Remove"),
                 b -> removeSelectedItem()
-            ).bounds(this.leftPos + 176, adminPanelY, 55, 16).build();
+            ).bounds(this.leftPos + 205, adminPanelY, 50, 16).build();
 
+            this.addRenderableWidget(this.browseItemsBtn);
             this.addRenderableWidget(this.addHandItemBtn);
             this.addRenderableWidget(this.editPriceBtn);
             this.addRenderableWidget(this.removeBtn);
@@ -202,6 +212,10 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
         if (this.activeModal != null) {
             this.activeModal.init(this.leftPos, this.topPos);
+        }
+
+        if (this.activePicker != null) {
+            this.activePicker.init(this.leftPos, this.topPos);
         }
 
         refreshEntries();
@@ -216,9 +230,19 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         this.activeModal = null;
     }
 
+    public void openItemPicker() {
+        this.activePicker = new ShopItemPickerModal(this, this.selectedCategory);
+        this.activePicker.init(this.leftPos, this.topPos);
+    }
+
+    public void closeItemPicker() {
+        this.activePicker = null;
+    }
+
     private void refreshEditUI() {
         boolean showEdit = this.editMode;
 
+        if (this.browseItemsBtn != null) this.browseItemsBtn.visible = showEdit;
         if (this.addHandItemBtn != null) this.addHandItemBtn.visible = showEdit;
         if (this.editPriceBtn != null) this.editPriceBtn.visible = showEdit;
         if (this.removeBtn != null) this.removeBtn.visible = showEdit;
@@ -235,18 +259,18 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         if (Minecraft.getInstance().player == null) return;
         ItemStack held = Minecraft.getInstance().player.getMainHandItem();
         if (held.isEmpty()) {
-            ClientFX.purchaseError(Component.literal("Pick an item from Creative tab / JEI into main hand first!"));
+            ClientFX.purchaseError(Component.literal("Hold an item in main hand!"));
             return;
         }
 
         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(held.getItem());
         ResourceLocation catId = selectedCategory != null ? selectedCategory : ResourceLocation.fromNamespaceAndPath("questshop", "create_tech");
 
-        int amount = Math.max(1, held.getCount());
-        int defaultCost = 10;
+        int amount = getQuantity();
+        int cost = getPriceInput();
 
-        ShopEntry tempEntry = new ShopEntry(itemId, amount, defaultCost, catId);
-        openEditModal(tempEntry);
+        PacketDistributor.sendToServer(new AdminUpdateEntryPayload(itemId, amount, cost, catId));
+        ClientFX.purchaseOk(itemId, amount, cost);
     }
 
     private void updateSelectedItem() {
@@ -326,6 +350,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.activePicker != null) {
+            return this.activePicker.mouseClicked(mouseX, mouseY, button);
+        }
         if (this.activeModal != null) {
             return this.activeModal.mouseClicked(mouseX, mouseY, button);
         }
@@ -334,6 +361,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.activePicker != null) {
+            return this.activePicker.keyPressed(keyCode, scanCode, modifiers);
+        }
         if (this.activeModal != null) {
             return this.activeModal.keyPressed(keyCode, scanCode, modifiers);
         }
@@ -365,6 +395,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
+        if (this.activePicker != null) {
+            return this.activePicker.charTyped(codePoint, modifiers);
+        }
         if (this.activeModal != null) {
             return this.activeModal.charTyped(codePoint, modifiers);
         }
@@ -419,7 +452,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
 
-        if (this.activeModal != null) {
+        if (this.activePicker != null) {
+            this.activePicker.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
+        } else if (this.activeModal != null) {
             this.activeModal.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
         }
     }
@@ -515,4 +550,13 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         super.removed();
         this.purchasePending = false;
     }
+
+    public int getGuiLeftPos() {
+        return this.leftPos;
+    }
+
+    public int getGuiTopPos() {
+        return this.topPos;
+    }
 }
+
