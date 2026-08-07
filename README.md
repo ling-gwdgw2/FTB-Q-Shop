@@ -1,39 +1,39 @@
-# 💎 FtbQshop (FTB Quest Shop Mod)
+# FtbQshop (FTB Quest Shop Mod)
 
 ม็อดระบบร้านค้าและเศรษฐกิจ **Primogem Economy System** สำหรับ Minecraft **NeoForge 1.21.1** ออกแบบพิเศษสำหรับ Modpack แนวบุกเบิกอุตสาหกรรมเรือลอยฟ้า (Airship Pioneer Industry) โดย **LingRube**
 
 ---
 
-## 🌟 ฟีเจอร์เด่นของม็อด (Key Features)
+## ฟีเจอร์เด่นของม็อด (Key Features)
 
-### 🛍️ 1. หน้าต่างร้านค้า Custom Shop GUI
+### 1. หน้าต่างร้านค้า Custom Shop GUI
 * **Sidebar Category Tabs**: แถบหมวดหมู่สินค้าด้านซ้าย จัดกลุ่มสินค้าอย่างเป็นระเบียบ สลับหมวดหมู่ลื่นไหล
 * **Real-time Search Bar**: ช่องค้นหาไอเทม `Search items...` พิมพ์ชื่อไอเทมหรือไอดีม็อดเพื่อกรองไอเทมได้ทันที
 * **Clean UI**: ดีไซน์เรียบหรู ดูง่าย ไม่บดบังสายตา
 
-### 💎 2. ระบบเศรษฐกิจ Primogem & ระบบขายของ (Sell System)
+### 2. ระบบเศรษฐกิจ Primogem & ระบบขายของ (Sell System)
 * **Primogem Crystal**: ใช้ Primogem เป็นสกุลเงินหลักในเกม (คลิกขวาเพื่อฝากเข้าคลังทีม)
 * **Sell System (แลกเปลี่ยนแร่)**: ขายแร่ดิบหรือไอเทมส่วนเกินเพื่อแลกรับเหรียญ Primogems เข้าสู่บัญชีทีม
 
-### 🚪 3. สะดวกสบายด้วย 3 ช่องทางเข้าถึงร้านค้า
-* 🎒 **Auto Inventory Button**: ปุ่ม `Shop` อัตโนมัติในหน้าต่างกระเป๋าเก็บของ (เปิดกระเป๋า `E` แล้วกดปุ่มมุมขวาบนได้ทันที)
-* 🔑 **Hotkey Keybinding**: กดปุ่ม **`B`** บนคีย์บอร์ดเพื่อเปิดร้านค้าทันที (ตั้งค่าเปลี่ยนปุ่มได้ในเมนู Controls)
-* 🛒 **FTB Quests Integration**: ปุ่มไอคอนเหรียญ Primogem บนแถบเมนูด้านบนของหนังสือเควสต์ FTB Quests
+### 3. สะดวกสบายด้วย 3 ช่องทางเข้าถึงร้านค้า
+*  **Auto Inventory Button**: ปุ่ม `Shop` อัตโนมัติในหน้าต่างกระเป๋าเก็บของ (เปิดกระเป๋า `E` แล้วกดปุ่มมุมขวาบนได้ทันที)
+*  **Hotkey Keybinding**: กดปุ่ม **`B`** บนคีย์บอร์ดเพื่อเปิดร้านค้าทันที (ตั้งค่าเปลี่ยนปุ่มได้ในเมนู Controls)
+*  **FTB Quests Integration**: ปุ่มไอคอนเหรียญ Primogem บนแถบเมนูด้านบนของหนังสือเควสต์ FTB Quests
 
-### 📦 4. หมวดหมู่สินค้าสำเร็จรูปจาก 6 ม็อดหลัก
-1. **Create Tech** (⚙️ อุปกรณ์และเครื่องจักรกล)
-2. **Create: Copycats+** (🎨 บล็อกตกแต่งลวดลาย)
-3. **Create Aeronautics** (🛸 ใบพัดและชิ้นส่วนเรือลอยฟ้า)
-4. **Ars Nouveau** (📜 สมุดเวทมนตร์และผลึกมหาเวท)
-5. **Iron's Spells 'n Spellbooks** (🔮 คาถาและคัมภีร์เวท)
-6. **L_Ender's Cataclysm** (🐉 แร่บอสและวัตถุโบราณ - หมวดล็อก)
-7. **Pioneer Supplies** (🧪 เสบียงนักบุกเบิก)
-8. **Industrial Tools** (🛠️ เครื่องมืออุตสาหกรรม)
-9. **Mineral Exchange** (💎 หมวดขายของรับ Primogems)
+### 4. หมวดหมู่สินค้าสำเร็จรูปจาก 6 ม็อดหลัก
+1. **Create Tech** (อุปกรณ์และเครื่องจักรกล)
+2. **Create: Copycats+** (บล็อกตกแต่งลวดลาย)
+3. **Create Aeronautics** (ใบพัดและชิ้นส่วนเรือลอยฟ้า)
+4. **Ars Nouveau** (สมุดเวทมนตร์และผลึกมหาเวท)
+5. **Iron's Spells 'n Spellbooks** (คาถาและคัมภีร์เวท)
+6. **L_Ender's Cataclysm** (แร่บอสและวัตถุโบราณ - หมวดล็อก)
+7. **Pioneer Supplies** (เสบียงนักบุกเบิก)
+8. **Industrial Tools** (เครื่องมืออุตสาหกรรม)
+9. **Mineral Exchange** (หมวดขายของรับ Primogems)
 
 ---
 
-## 💻 คำสั่งผู้ใช้งานและแอดมิน (Commands)
+## คำสั่งผู้ใช้งานและแอดมิน (Commands)
 
 | คำสั่ง (Command) | สิทธิ์ (Permission) | คำอธิบาย (Description) |
 | :--- | :--- | :--- |
@@ -45,7 +45,7 @@
 
 ---
 
-## 🛠️ วิธีการปรับแต่งสินค้าผ่าน Datapack (Customization)
+## วิธีการปรับแต่งสินค้าผ่าน Datapack (Customization)
 
 ม็อด FtbQshop รองรับการเพิ่ม/แก้ไขหมวดหมู่และสินค้าผ่านระบบ **Datapack** โดยตรง:
 
@@ -85,7 +85,7 @@ data/
 
 ---
 
-## ℹ️ ข้อมูลโปรเจกต์ (Project Info)
+### ข้อมูลโปรเจกต์ (Project Info)
 
 * **Mod Name**: FtbQshop
 * **Author**: LingRube
