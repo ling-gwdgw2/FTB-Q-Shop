@@ -74,11 +74,11 @@ public class Net {
             });
         });
 
-        // Creative / Admin Editing Payloads
+        // Creative / Admin Editing Payloads (Server-side security enforced: OP level 2+ only)
         registrar.playToServer(AdminUpdateCategoryPayload.TYPE, AdminUpdateCategoryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
                 if (ctx.player() instanceof ServerPlayer player) {
-                    if (player.isCreative() || player.hasPermissions(2)) {
+                    if (player.hasPermissions(2)) {
                         if (payload.delete()) {
                             ShopCatalog.INSTANCE.removeCategory(payload.categoryId());
                         } else {
@@ -97,7 +97,7 @@ public class Net {
         registrar.playToServer(AdminUpdateEntryPayload.TYPE, AdminUpdateEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
                 if (ctx.player() instanceof ServerPlayer player) {
-                    if (player.isCreative() || player.hasPermissions(2)) {
+                    if (player.hasPermissions(2)) {
                         ShopEntry newEntry = new ShopEntry(payload.itemId(), payload.amount(), payload.cost(), payload.category());
                         ShopCatalog.INSTANCE.addOrUpdateEntry(newEntry);
                         ShopCatalog.INSTANCE.saveToDisk(player.serverLevel().getServer());
@@ -110,7 +110,7 @@ public class Net {
         registrar.playToServer(AdminRemoveEntryPayload.TYPE, AdminRemoveEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
                 if (ctx.player() instanceof ServerPlayer player) {
-                    if (player.isCreative() || player.hasPermissions(2)) {
+                    if (player.hasPermissions(2)) {
                         ShopCatalog.INSTANCE.removeEntry(payload.itemId(), payload.category());
                         ShopCatalog.INSTANCE.saveToDisk(player.serverLevel().getServer());
                         PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
