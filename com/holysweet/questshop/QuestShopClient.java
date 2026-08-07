@@ -1,6 +1,5 @@
 package com.holysweet.questshop;
 
-import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import com.holysweet.questshop.client.InventoryButtonListener;
 

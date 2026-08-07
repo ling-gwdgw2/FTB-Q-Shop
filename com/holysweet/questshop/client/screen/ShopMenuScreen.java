@@ -235,18 +235,18 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         if (Minecraft.getInstance().player == null) return;
         ItemStack held = Minecraft.getInstance().player.getMainHandItem();
         if (held.isEmpty()) {
-            ClientFX.purchaseError(Component.literal("Hold an item in main hand!"));
+            ClientFX.purchaseError(Component.literal("Pick an item from Creative tab / JEI into main hand first!"));
             return;
         }
 
         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(held.getItem());
         ResourceLocation catId = selectedCategory != null ? selectedCategory : ResourceLocation.fromNamespaceAndPath("questshop", "create_tech");
 
-        int amount = getQuantity();
-        int cost = getPriceInput();
+        int amount = Math.max(1, held.getCount());
+        int defaultCost = 10;
 
-        PacketDistributor.sendToServer(new AdminUpdateEntryPayload(itemId, amount, cost, catId));
-        ClientFX.purchaseOk(itemId, amount, cost);
+        ShopEntry tempEntry = new ShopEntry(itemId, amount, defaultCost, catId);
+        openEditModal(tempEntry);
     }
 
     private void updateSelectedItem() {
