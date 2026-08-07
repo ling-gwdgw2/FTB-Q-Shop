@@ -22,8 +22,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.slf4j.Logger;
@@ -53,7 +51,6 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     private Button editPriceBtn;
     private Button removeBtn;
 
-    private ShopEditModal activeModal = null;
     private ShopItemPickerModal activePicker = null;
 
     private ResourceLocation selectedCategory = null;
@@ -115,7 +112,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int searchY = this.topPos + 22;
         int searchWidth = this.imageWidth - 16;
         this.searchBox = new EditBox(this.font, searchX, searchY, searchWidth, 16, Component.literal("Search"));
-        this.searchBox.setHint(Component.literal("Search items... (Right-Click item to Edit/Delete)"));
+        this.searchBox.setHint(Component.literal("Search items..."));
         this.searchBox.setResponder(text -> refreshEntries());
         this.addRenderableWidget(this.searchBox);
 
@@ -210,24 +207,11 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             refreshEditUI();
         }
 
-        if (this.activeModal != null) {
-            this.activeModal.init(this.leftPos, this.topPos);
-        }
-
         if (this.activePicker != null) {
             this.activePicker.init(this.leftPos, this.topPos);
         }
 
         refreshEntries();
-    }
-
-    public void openEditModal(ShopEntry entry) {
-        this.activeModal = new ShopEditModal(this, entry);
-        this.activeModal.init(this.leftPos, this.topPos);
-    }
-
-    public void closeModal() {
-        this.activeModal = null;
     }
 
     public void openItemPicker() {
@@ -353,9 +337,6 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         if (this.activePicker != null) {
             return this.activePicker.mouseClicked(mouseX, mouseY, button);
         }
-        if (this.activeModal != null) {
-            return this.activeModal.mouseClicked(mouseX, mouseY, button);
-        }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -363,9 +344,6 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (this.activePicker != null) {
             return this.activePicker.keyPressed(keyCode, scanCode, modifiers);
-        }
-        if (this.activeModal != null) {
-            return this.activeModal.keyPressed(keyCode, scanCode, modifiers);
         }
 
         boolean searchFocused = this.searchBox != null && this.searchBox.isFocused();
@@ -397,9 +375,6 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     public boolean charTyped(char codePoint, int modifiers) {
         if (this.activePicker != null) {
             return this.activePicker.charTyped(codePoint, modifiers);
-        }
-        if (this.activeModal != null) {
-            return this.activeModal.charTyped(codePoint, modifiers);
         }
 
         if (this.qtyBox != null && this.qtyBox.isFocused()) {
@@ -454,8 +429,6 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
         if (this.activePicker != null) {
             this.activePicker.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
-        } else if (this.activeModal != null) {
-            this.activeModal.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
         }
     }
 
@@ -499,7 +472,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
         if (!this.purchasePending && this.list != null && this.list.getSelected() != null) {
             ShopListEntry selected = (ShopListEntry) this.list.getSelected();
-            if (selected != null && selected.data != null) {
+            if (selected != null && selected.data == null) {
                 ShopEntry data = selected.data;
                 int totalCost = data.cost() * qty;
                 int totalItems = data.amount() * qty;
@@ -559,4 +532,3 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         return this.topPos;
     }
 }
-

@@ -1,6 +1,7 @@
 package com.holysweet.questshop.client.screen;
 
 import com.holysweet.questshop.api.ShopEntry;
+import com.holysweet.questshop.network.payload.AdminUpdateEntryPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -11,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +52,6 @@ public class ShopItemPickerModal {
         int modalHeight = 190;
         int modalX = leftPos + (280 - modalWidth) / 2;
         int modalY = topPos + (230 - modalHeight) / 2;
-
-        int fontHeight = Minecraft.getInstance().font.lineHeight;
 
         // Search bar
         this.searchBox = new EditBox(Minecraft.getInstance().font, modalX + 10, modalY + 8, modalWidth - 20, 16, Component.literal("Search"));
@@ -196,9 +196,8 @@ public class ShopItemPickerModal {
             if (mouseX >= slotX && mouseX < slotX + 22 && mouseY >= slotY && mouseY < slotY + 22) {
                 Item selectedItem = this.filteredItems.get(i);
                 ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(selectedItem);
-                ShopEntry newEntry = new ShopEntry(itemId, 1, 10, this.category);
+                PacketDistributor.sendToServer(new AdminUpdateEntryPayload(itemId, 1, 10, this.category));
                 this.parent.closeItemPicker();
-                this.parent.openEditModal(newEntry);
                 return true;
             }
         }

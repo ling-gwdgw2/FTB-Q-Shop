@@ -4,7 +4,6 @@ import com.holysweet.questshop.api.ShopEntry;
 import com.holysweet.questshop.client.ClientCategories;
 import com.holysweet.questshop.client.ClientCoins;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -65,17 +64,6 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
         } else if (!affordable) {
             guiGraphics.fill(left, top, left + width, bgY, 0x1B000000);
         }
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 1 && this.mc.player != null && this.mc.player.isCreative()) {
-            if (this.mc.screen instanceof ShopMenuScreen screen) {
-                screen.openEditModal(this.data);
-                return true;
-            }
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
