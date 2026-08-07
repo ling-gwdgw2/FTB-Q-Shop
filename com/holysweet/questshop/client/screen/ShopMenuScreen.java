@@ -50,6 +50,8 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     private Button editPriceBtn;
     private Button removeBtn;
 
+    private ShopEditModal activeModal = null;
+
     private ResourceLocation selectedCategory = null;
     private final List<Button> categoryButtons = new ArrayList<>();
     private boolean purchasePending = false;
@@ -109,7 +111,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int searchY = this.topPos + 22;
         int searchWidth = this.imageWidth - 16;
         this.searchBox = new EditBox(this.font, searchX, searchY, searchWidth, 16, Component.literal("Search"));
-        this.searchBox.setHint(Component.literal("Search items..."));
+        this.searchBox.setHint(Component.literal("Search items... (Right-Click item to Edit/Delete)"));
         this.searchBox.setResponder(text -> refreshEntries());
         this.addRenderableWidget(this.searchBox);
 
@@ -198,7 +200,20 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             refreshEditUI();
         }
 
+        if (this.activeModal != null) {
+            this.activeModal.init(this.leftPos, this.topPos);
+        }
+
         refreshEntries();
+    }
+
+    public void openEditModal(ShopEntry entry) {
+        this.activeModal = new ShopEditModal(this, entry);
+        this.activeModal.init(this.leftPos, this.topPos);
+    }
+
+    public void closeModal() {
+        this.activeModal = null;
     }
 
     private void refreshEditUI() {
@@ -310,7 +325,19 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.activeModal != null) {
+            return this.activeModal.mouseClicked(mouseX, mouseY, button);
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.activeModal != null) {
+            return this.activeModal.keyPressed(keyCode, scanCode, modifiers);
+        }
+
         boolean searchFocused = this.searchBox != null && this.searchBox.isFocused();
         boolean qtyFocused = this.qtyBox != null && this.qtyBox.isFocused();
         boolean priceFocused = this.priceBox != null && this.priceBox.isFocused();
@@ -338,6 +365,10 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
+        if (this.activeModal != null) {
+            return this.activeModal.charTyped(codePoint, modifiers);
+        }
+
         if (this.qtyBox != null && this.qtyBox.isFocused()) {
             if (Character.isDigit(codePoint)) {
                 return this.qtyBox.charTyped(codePoint, modifiers);
@@ -387,6 +418,10 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+
+        if (this.activeModal != null) {
+            this.activeModal.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
+        }
     }
 
     @Override
