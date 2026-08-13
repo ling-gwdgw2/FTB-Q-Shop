@@ -519,18 +519,28 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
 
-        if (this.activeCategoryModal != null) {
-            this.activeCategoryModal.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
-        } else if (this.activePicker != null) {
-            this.activePicker.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
+        if (this.activeCategoryModal != null || this.activePicker != null) {
+            // When a modal is open: only render the background panel (not widgets/labels)
+            // to prevent buttons, text, and list items from bleeding through the overlay
+            this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
+
+            if (this.activeCategoryModal != null) {
+                this.activeCategoryModal.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
+            } else {
+                this.activePicker.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos);
+            }
+        } else {
+            super.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.renderTooltip(guiGraphics, mouseX, mouseY);
         }
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        // Skip labels when any modal overlay is open to prevent text bleeding through
+        if (this.activePicker != null || this.activeCategoryModal != null) return;
+
         guiGraphics.drawString(this.font, this.title, 8, 6, 0xFFFFFF, false);
         String coinsText = "Primogems: " + ClientCoins.get();
         int coinsX = this.imageWidth - 8 - this.font.width(coinsText);
