@@ -21,7 +21,7 @@ issueTrackerURL="https://github.com/ling-gwdgw2/FTB-Q-Shop/issues" #optional
 [[mods]] #mandatory
 
 # The modid of the mod
-modId="questshop" #mandatory
+modId="ling_q_shop" #mandatory
 
 # The version number of the mod
 version="1.2" #mandatory
@@ -50,7 +50,7 @@ description='''Adds a shop that (optionally) integrates with FTB Teams & FTB Que
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 #[[mixins]]
-#config="questshop.mixins.json"
+#config="ling_q_shop.mixins.json"
 
 # The [[accessTransformers]] block allows you to declare where your AT file is.
 # If this block is omitted, a fallback attempt will be made to load an AT from META-INF/accesstransformer.cfg
@@ -60,7 +60,7 @@ description='''Adds a shop that (optionally) integrates with FTB Teams & FTB Que
 # The coremods config file path is not configurable and is always loaded from META-INF/coremods.json
 
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.questshop]] #optional
+[[dependencies.ling_q_shop]] #optional
     # the modid of the dependency
     modId="neoforge" #mandatory
     # The type of the dependency. Can be one of "required", "optional", "incompatible" or "discouraged" (case insensitive).
@@ -79,7 +79,7 @@ description='''Adds a shop that (optionally) integrates with FTB Teams & FTB Que
     side="BOTH"
 
 # Here's another dependency
-[[dependencies.questshop]]
+[[dependencies.ling_q_shop]]
     modId="minecraft"
     type="required"
     # This version range declares a minimum of the current minecraft version up to but not including the next major version
@@ -87,14 +87,14 @@ description='''Adds a shop that (optionally) integrates with FTB Teams & FTB Que
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.questshop]]
+[[dependencies.ling_q_shop]]
 modId="ftbteams"
 type="optional"
 versionRange="*"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.questshop]]
+[[dependencies.ling_q_shop]]
 modId="ftbquests"
 type="optional"
 versionRange="*"
