@@ -303,7 +303,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         }
 
         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(held.getItem());
-        ResourceLocation catId = selectedCategory != null ? selectedCategory : ResourceLocation.fromNamespaceAndPath("questshop", "general");
+        ResourceLocation catId = selectedCategory != null ? selectedCategory : ResourceLocation.fromNamespaceAndPath(QuestShop.MODID, "general");
 
         int amount = getQuantity();
         int cost = getPriceInput();
