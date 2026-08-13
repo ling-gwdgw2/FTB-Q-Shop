@@ -1,16 +1,29 @@
 {
+  "item.ling_q_shop.coin": "Primogem",
+  "tooltip.ling_q_shop.coin": "§9คลิกขวาเพื่อฝากเหรียญ | SHIFT+คลิกขวาเพื่อฝากทั้งกอง§r",
   "item.questshop.coin": "Primogem",
   "tooltip.questshop.coin": "§9คลิกขวาเพื่อฝากเหรียญ | SHIFT+คลิกขวาเพื่อฝากทั้งกอง§r",
 
-  "key.categories.questshop": "FtbQshop",
-  "key.questshop.open_shop": "เปิดร้านค้า FtbQshop",
+  "key.categories.ling_q_shop": "LING Quest Shop",
+  "key.ling_q_shop.open_shop": "เปิดร้านค้า LING Quest Shop",
+  "key.categories.questshop": "LING Quest Shop",
+  "key.questshop.open_shop": "เปิดร้านค้า LING Quest Shop",
 
-  "command.questshop.player_only": "คำสั่งนี้ใช้ได้เฉพาะผู้เล่นเท่านั้น",
-  "command.questshop.no_team": "%s ไม่อยู่ในทีม",
-  "command.questshop.coins_show": "ทีมของ %s มี %s Primogems",
-  "command.questshop.coins_added": "เพิ่ม %s Primogems ให้ %s (ยอดรวมใหม่: %s)",
-  "command.questshop.coins_removed": "หัก %s Primogems จาก %s (ยอดรวมใหม่: %s)",
-  "command.questshop.coins_set": "ตั้งค่ายอด Primogems ของทีม %s เป็น %s",
+  "command.ling_q_shop.player_only": "คำสั่งนี้ใช้ได้เฉพาะผู้เล่นเท่านั้น",
+  "command.ling_q_shop.no_team": "%s ไม่อยู่ในทีม",
+  "command.ling_q_shop.coins_show": "ทีมของ %s มี %s Primogems",
+  "command.ling_q_shop.coins_added": "เพิ่ม %s Primogems ให้ %s (ยอดรวมใหม่: %s)",
+  "command.ling_q_shop.coins_removed": "หัก %s Primogems จาก %s (ยอดรวมใหม่: %s)",
+  "command.ling_q_shop.coins_set": "ตั้งค่ายอด Primogems ของทีม %s เป็น %s",
+
+  "ling_q_shop.buy.ok": "สั่งซื้อสำเร็จ!",
+  "ling_q_shop.buy.invalid": "สินค้านี้ไม่พร้อมใช้งานแล้ว",
+  "ling_q_shop.buy.no_coins": "Primogems ไม่พอ",
+  "ling_q_shop.buy.no_space": "ช่องเก็บของเต็ม",
+  "ling_q_shop.buy.locked": "หมวดหมู่นี้ถูกล็อกอยู่",
+  "ling_q_shop.buy.failed": "การสั่งซื้อล้มเหลว",
+  "ling_q_shop.buy.toast.detail": "ได้รับ x%1$s %2$s (-%3$s Primogems)",
+  "ling_q_shop.category.locked": "หมวดหมู่นี้ยังไม่ได้รับการปลดล็อก",
 
   "questshop.buy.ok": "สั่งซื้อสำเร็จ!",
   "questshop.buy.invalid": "สินค้านี้ไม่พร้อมใช้งานแล้ว",
@@ -21,14 +34,15 @@
   "questshop.buy.toast.detail": "ได้รับ x%1$s %2$s (-%3$s Primogems)",
   "questshop.category.locked": "หมวดหมู่นี้ยังไม่ได้รับการปลดล็อก",
 
-  "reward.questshop.coins.amount": "จำนวน",
-  "reward.questshop.coins.title": "Primogems: %s",
+  "reward.ling_q_shop.coins.amount": "จำนวน",
+  "reward.ling_q_shop.coins.title": "Primogems: %s",
+  "reward.ling_q_shop.category.category": "หมวดหมู่",
+  "reward.ling_q_shop.category.unlock": "ปลดล็อก",
+  "reward.ling_q_shop.category.title.unlock": "ปลดล็อกหมวดหมู่ %s",
+  "reward.ling_q_shop.category.title.lock": "ล็อกหมวดหมู่ %s",
 
-  "reward.questshop.category.category": "หมวดหมู่",
-  "reward.questshop.category.unlock": "ปลดล็อก",
-  "reward.questshop.category.title.unlock": "ปลดล็อกหมวดหมู่ %s",
-  "reward.questshop.category.title.lock": "ล็อกหมวดหมู่ %s",
-
+  "ftbquests.reward.ling_q_shop.coins": "Primogems",
+  "ftbquests.reward.ling_q_shop.category": "หมวดหมู่ร้านค้า",
   "ftbquests.reward.questshop.coins": "Primogems",
   "ftbquests.reward.questshop.category": "หมวดหมู่ร้านค้า"
 }
