@@ -1,5 +1,6 @@
 package com.holysweet.questshop;
 
+import com.holysweet.questshop.client.ClientInit;
 import com.holysweet.questshop.data.ShopCatalog;
 import com.holysweet.questshop.integrations.IntegrationBootstrap;
 import com.holysweet.questshop.item.ModItems;
@@ -17,6 +18,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
@@ -31,6 +33,10 @@ public class QuestShop {
     public QuestShop(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::addCreative);
+
+        if (FMLEnvironment.dist.isClient()) {
+            modEventBus.addListener(ClientInit::onRegisterScreens);
+        }
 
         ModMenuTypes.MENU_TYPES.register(modEventBus);
         ModItems.register(modEventBus);
