@@ -1,5 +1,6 @@
 package com.holysweet.questshop.client.screen;
 
+import com.holysweet.questshop.QuestShop;
 import com.holysweet.questshop.api.ShopCategory;
 import com.holysweet.questshop.api.ShopEntry;
 import com.holysweet.questshop.client.ClientCategories;

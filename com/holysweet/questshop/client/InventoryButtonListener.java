@@ -15,6 +15,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent.Init.Post;
 
 @EventBusSubscriber(modid = QuestShop.MODID, value = Dist.CLIENT)
 public class InventoryButtonListener {
@@ -41,7 +43,7 @@ public class InventoryButtonListener {
     }
 
     @SubscribeEvent
-    public static void onScreenInit(ScreenEvent.Init.Post event) {
+    public static void onScreenInit(Post event) {
         if (event.getScreen() instanceof InventoryScreen || event.getScreen() instanceof CreativeModeInventoryScreen) {
             AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) event.getScreen();
             int x = InventoryScreenHelper.getLeft(screen) + 148;

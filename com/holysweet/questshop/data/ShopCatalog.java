@@ -32,7 +32,7 @@ public final class ShopCatalog {
 
     public void replace(Map<ResourceLocation, ShopCategory> categories, List<ShopEntry> entries) {
         Map<ResourceLocation, ShopCategory> catMap = new HashMap<>(categories);
-        entryList.sort(Comparator.comparingInt((ShopEntry e) -> {
+        entries.sort(Comparator.comparingInt((ShopEntry e) -> {
             ShopCategory cat = catMap.getOrDefault(e.category(), new ShopCategory(
                     ResourceLocation.fromNamespaceAndPath(QuestShop.MODID, "general"),
                     "General",
@@ -42,7 +42,7 @@ public final class ShopCatalog {
             return cat.order();
         }).thenComparing(e -> e.category().toString()).thenComparing(e -> e.itemId().toString()));
 
-        this.ref.set(new Snapshot(Collections.unmodifiableMap(catMap), Collections.unmodifiableList(entryList)));
+        this.ref.set(new Snapshot(Collections.unmodifiableMap(catMap), Collections.unmodifiableList(entries)));
     }
 
     public Map<ResourceLocation, ShopCategory> categories() {
