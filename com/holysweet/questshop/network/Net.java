@@ -76,7 +76,7 @@ public class Net {
 
         registrar.playToServer(AdminUpdateCategoryPayload.TYPE, AdminUpdateCategoryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                if (ctx.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
+                if (ctx.player() instanceof ServerPlayer player && (player.hasPermissions(2) || player.isCreative())) {
                     if (payload.delete()) {
                         ShopCatalog.INSTANCE.removeCategory(payload.categoryId());
                     } else {
@@ -93,7 +93,7 @@ public class Net {
 
         registrar.playToServer(AdminUpdateEntryPayload.TYPE, AdminUpdateEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                if (ctx.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
+                if (ctx.player() instanceof ServerPlayer player && (player.hasPermissions(2) || player.isCreative())) {
                     ShopEntry entry = new ShopEntry(payload.itemId(), payload.amount(), payload.cost(), payload.category());
                     ShopCatalog.INSTANCE.addOrUpdateEntry(entry);
                     ShopCatalog.INSTANCE.saveToDisk(player.getServer());
@@ -104,7 +104,7 @@ public class Net {
 
         registrar.playToServer(AdminRemoveEntryPayload.TYPE, AdminRemoveEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                if (ctx.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
+                if (ctx.player() instanceof ServerPlayer player && (player.hasPermissions(2) || player.isCreative())) {
                     ShopCatalog.INSTANCE.removeEntry(payload.itemId(), payload.category());
                     ShopCatalog.INSTANCE.saveToDisk(player.getServer());
                     sendShopData(player.getServer());

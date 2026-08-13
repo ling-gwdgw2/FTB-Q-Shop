@@ -131,8 +131,8 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
                 .build();
         this.addRenderableWidget(this.buyButton);
 
-        // Creative Mode Controls Initialization
-        if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isCreative()) {
+        // Creative Mode / Admin Controls Initialization
+        if (Minecraft.getInstance().player != null && (Minecraft.getInstance().player.isCreative() || Minecraft.getInstance().player.hasPermissions(2))) {
             int toggleX = this.leftPos + 70;
             int toggleY = this.topPos + 4;
             this.editToggleBtn = Button.builder(
