@@ -44,8 +44,17 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
         boolean affordable = ClientCoins.get() >= this.data.cost();
 
         int bgY = top + height;
-        int bgColor = isHovered ? 0x34000000 : 0x22000000;
+        int bgColor = isHovered ? 0x45000000 : 0x22000000;
         guiGraphics.fill(left, top, left + width, bgY, bgColor);
+
+        // Gold Highlight Frame on Hover
+        if (isHovered) {
+            int goldColor = 0xFFFFD700;
+            guiGraphics.fill(left, top, left + width, top + 1, goldColor);
+            guiGraphics.fill(left, bgY - 1, left + width, bgY, goldColor);
+            guiGraphics.fill(left, top, left + 1, bgY, goldColor);
+            guiGraphics.fill(left + width - 1, top, left + width, bgY, goldColor);
+        }
 
         // 1. Item icon
         int iconX = left + 2;

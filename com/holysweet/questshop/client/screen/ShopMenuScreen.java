@@ -553,6 +553,31 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         guiGraphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0xF0101018);
         // Sidebar background
         guiGraphics.fill(this.leftPos - 110, this.topPos, this.leftPos - 2, this.topPos + this.imageHeight, 0xF0151522);
+
+        // Sidebar Vertical Scrollbar Indicator
+        int totalCats = ClientCategories.categories().size();
+        int maxVisible = (this.imageHeight - 35) / 20;
+        int maxScroll = Math.max(0, totalCats - maxVisible);
+
+        int trackX = this.leftPos - 5;
+        int trackY = this.topPos + 8;
+        int trackWidth = 3;
+        int trackHeight = this.imageHeight - 16;
+
+        // Draw scrollbar background track
+        guiGraphics.fill(trackX, trackY, trackX + trackWidth, trackY + trackHeight, 0xFF0B0B12);
+
+        if (maxScroll > 0) {
+            int thumbHeight = Math.max(12, (int) ((float) maxVisible / (totalCats + 1) * trackHeight));
+            float scrollProgress = (float) this.categoryScrollOffset / maxScroll;
+            int thumbY = trackY + (int) (scrollProgress * (trackHeight - thumbHeight));
+
+            // Draw golden scrollbar thumb
+            guiGraphics.fill(trackX, thumbY, trackX + trackWidth, thumbY + thumbHeight, 0xFFFFD700);
+        } else {
+            // Draw dimmed full thumb when no scrolling needed
+            guiGraphics.fill(trackX, trackY, trackX + trackWidth, trackY + trackHeight, 0xFF3A3A50);
+        }
     }
 
     public void onPurchaseResult(BuyResultPayload.Code code) {
