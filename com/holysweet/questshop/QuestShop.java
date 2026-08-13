@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 
 @Mod(QuestShop.MODID)
 public class QuestShop {
-    public static final String MODID = "questshop";
+    public static final String MODID = "ling_q_shop";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final ResourceKey<CreativeModeTab> TOOLS_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.withDefaultNamespace("tools_and_utilities"));
 

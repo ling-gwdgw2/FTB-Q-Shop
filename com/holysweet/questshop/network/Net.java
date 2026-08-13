@@ -129,11 +129,9 @@ public class Net {
 
     public static void sendCategoriesSnapshot(net.minecraft.server.MinecraftServer server) {
         if (server == null) return;
-        // Broadcast payload directly
-        PacketDistributor.sendToAllPlayers(new CategoriesSnapshotPayload(
-                ShopCatalog.INSTANCE.categories(),
-                java.util.Collections.emptySet()
-        ));
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            sendCategoriesSnapshot(player);
+        }
     }
 
     public static void sendShopData(ServerPlayer player) {

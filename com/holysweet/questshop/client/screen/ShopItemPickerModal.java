@@ -1,5 +1,6 @@
 package com.holysweet.questshop.client.screen;
 
+import com.holysweet.questshop.QuestShop;
 import com.holysweet.questshop.api.ShopEntry;
 import com.holysweet.questshop.network.payload.AdminUpdateEntryPayload;
 import net.minecraft.client.Minecraft;
@@ -37,7 +38,7 @@ public class ShopItemPickerModal {
 
     public ShopItemPickerModal(ShopMenuScreen parent, ResourceLocation category) {
         this.parent = parent;
-        this.category = category != null ? category : ResourceLocation.fromNamespaceAndPath("questshop", "create_tech");
+        this.category = category != null ? category : ResourceLocation.fromNamespaceAndPath(QuestShop.MODID, "create_tech");
 
         for (Item item : BuiltInRegistries.ITEM) {
             if (item != Items.AIR) {
@@ -163,6 +164,17 @@ public class ShopItemPickerModal {
         if (!hoveredStack.isEmpty()) {
             guiGraphics.renderTooltip(Minecraft.getInstance().font, hoveredStack, mouseX, mouseY);
         }
+    }
+
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (scrollY > 0) { // Scroll up -> Prev Page
+            changePage(-1);
+            return true;
+        } else if (scrollY < 0) { // Scroll down -> Next Page
+            changePage(1);
+            return true;
+        }
+        return false;
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {

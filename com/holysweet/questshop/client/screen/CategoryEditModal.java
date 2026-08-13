@@ -1,5 +1,6 @@
 package com.holysweet.questshop.client.screen;
 
+import com.holysweet.questshop.QuestShop;
 import com.holysweet.questshop.api.ShopCategory;
 import com.holysweet.questshop.network.payload.AdminUpdateCategoryPayload;
 import net.minecraft.client.Minecraft;
@@ -84,7 +85,7 @@ public class CategoryEditModal {
             if (path.isEmpty()) {
                 path = "cat_" + System.currentTimeMillis();
             }
-            catId = ResourceLocation.fromNamespaceAndPath("questshop", path);
+            catId = ResourceLocation.fromNamespaceAndPath(QuestShop.MODID, path);
         }
 
         PacketDistributor.sendToServer(new AdminUpdateCategoryPayload(catId, name, unlockedByDefault, order, false));
@@ -120,6 +121,10 @@ public class CategoryEditModal {
         if (saveBtn != null) saveBtn.render(guiGraphics, mouseX, mouseY, partialTick);
         if (deleteBtn != null) deleteBtn.render(guiGraphics, mouseX, mouseY, partialTick);
         if (cancelBtn != null) cancelBtn.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return true;
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.holysweet.questshop.QuestShop;
 import com.holysweet.questshop.api.ShopCategory;
 import com.holysweet.questshop.api.ShopEntry;
 import com.mojang.logging.LogUtils;
@@ -31,11 +32,9 @@ public final class ShopCatalog {
 
     public void replace(Map<ResourceLocation, ShopCategory> categories, List<ShopEntry> entries) {
         Map<ResourceLocation, ShopCategory> catMap = new HashMap<>(categories);
-        List<ShopEntry> entryList = new ArrayList<>(entries);
-
         entryList.sort(Comparator.comparingInt((ShopEntry e) -> {
             ShopCategory cat = catMap.getOrDefault(e.category(), new ShopCategory(
-                    ResourceLocation.fromNamespaceAndPath("questshop", "general"),
+                    ResourceLocation.fromNamespaceAndPath(QuestShop.MODID, "general"),
                     "General",
                     true,
                     0
@@ -102,8 +101,11 @@ public final class ShopCatalog {
             Map<ResourceLocation, ShopCategory> loadedCats = new HashMap<>(categories());
             List<ShopEntry> loadedEntries = new ArrayList<>(allEntries());
 
-            // 1. Load Config Categories from config/questshop/shop_categories/*.json
-            File catDir = new File("config/questshop/shop_categories");
+            // 1. Load Config Categories from config/ling_q_shop/shop_categories/*.json (or config/questshop fallback)
+            File catDir = new File("config/ling_q_shop/shop_categories");
+            if (!catDir.exists()) {
+                catDir = new File("config/questshop/shop_categories");
+            }
             if (catDir.exists() && catDir.isDirectory()) {
                 File[] catFiles = catDir.listFiles((dir, name) -> name.endsWith(".json"));
                 if (catFiles != null) {
@@ -113,7 +115,7 @@ public final class ShopCatalog {
                             JsonObject obj = gson.fromJson(reader, JsonObject.class);
                             if (obj != null) {
                                 String catName = f.getName().replace(".json", "");
-                                ResourceLocation catId = ResourceLocation.fromNamespaceAndPath("questshop", catName);
+                                ResourceLocation catId = ResourceLocation.fromNamespaceAndPath(QuestShop.MODID, catName);
                                 String display = obj.has("display") ? obj.get("display").getAsString() : catName;
                                 boolean unlocked = !obj.has("unlocked_by_default") || obj.get("unlocked_by_default").getAsBoolean();
                                 int order = obj.has("order") ? obj.get("order").getAsInt() : 0;
@@ -122,14 +124,17 @@ public final class ShopCatalog {
                                 loadedCats.put(catId, cat);
                             }
                         } catch (Exception e) {
-                            LOGGER.error("[FtbQshop] Failed to load category file {}", f.getName(), e);
+                            LOGGER.error("[ling_q_shop] Failed to load category file {}", f.getName(), e);
                         }
                     }
                 }
             }
 
-            // 2. Load Config Entries from config/questshop/shop_entries/*.json
-            File entryDir = new File("config/questshop/shop_entries");
+            // 2. Load Config Entries from config/ling_q_shop/shop_entries/*.json (or config/questshop fallback)
+            File entryDir = new File("config/ling_q_shop/shop_entries");
+            if (!entryDir.exists()) {
+                entryDir = new File("config/questshop/shop_entries");
+            }
             if (entryDir.exists() && entryDir.isDirectory()) {
                 File[] entryFiles = entryDir.listFiles((dir, name) -> name.endsWith(".json"));
                 if (entryFiles != null) {
@@ -151,22 +156,22 @@ public final class ShopCatalog {
                                 }
                             }
                         } catch (Exception e) {
-                            LOGGER.error("[FtbQshop] Failed to load entry file {}", f.getName(), e);
+                            LOGGER.error("[ling_q_shop] Failed to load entry file {}", f.getName(), e);
                         }
                     }
                 }
             }
 
             replace(loadedCats, loadedEntries);
-            LOGGER.info("[FtbQshop] Successfully loaded catalog from disk (Categories: {}, Entries: {})", loadedCats.size(), loadedEntries.size());
+            LOGGER.info("[ling_q_shop] Successfully loaded catalog from disk (Categories: {}, Entries: {})", loadedCats.size(), loadedEntries.size());
         } catch (Exception e) {
-            LOGGER.error("[FtbQshop] Error loading catalog from disk", e);
+            LOGGER.error("[ling_q_shop] Error loading catalog from disk", e);
         }
     }
 
     public void saveCategoriesToDisk(MinecraftServer server) {
         try {
-            File configDir = new File("config/questshop/shop_categories");
+            File configDir = new File("config/ling_q_shop/shop_categories");
             if (!configDir.exists()) {
                 configDir.mkdirs();
             }
@@ -197,15 +202,15 @@ public final class ShopCatalog {
                     gson.toJson(obj, writer);
                 }
             }
-            LOGGER.info("[FtbQshop] Successfully saved shop categories to {}", configDir.getAbsolutePath());
+            LOGGER.info("[ling_q_shop] Successfully saved shop categories to {}", configDir.getAbsolutePath());
         } catch (IOException ex) {
-            LOGGER.error("[FtbQshop] Failed to save shop categories to disk", ex);
+            LOGGER.error("[ling_q_shop] Failed to save shop categories to disk", ex);
         }
     }
 
     public void saveToDisk(MinecraftServer server) {
         try {
-            File configDir = new File("config/questshop/shop_entries");
+            File configDir = new File("config/ling_q_shop/shop_entries");
             if (!configDir.exists()) {
                 configDir.mkdirs();
             }
@@ -246,9 +251,9 @@ public final class ShopCatalog {
                     gson.toJson(e.getValue(), writer);
                 }
             }
-            LOGGER.info("[FtbQshop] Successfully saved updated shop entries to {}", configDir.getAbsolutePath());
+            LOGGER.info("[ling_q_shop] Successfully saved updated shop entries to {}", configDir.getAbsolutePath());
         } catch (IOException ex) {
-            LOGGER.error("[FtbQshop] Failed to save shop entries to disk", ex);
+            LOGGER.error("[ling_q_shop] Failed to save shop entries to disk", ex);
         }
     }
 }

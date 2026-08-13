@@ -5,7 +5,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-@EventBusSubscriber(modid = "questshop", bus = EventBusSubscriber.Bus.MOD)
+import com.holysweet.questshop.QuestShop;
+
+@EventBusSubscriber(modid = QuestShop.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class NetworkHandler {
 
     @SubscribeEvent

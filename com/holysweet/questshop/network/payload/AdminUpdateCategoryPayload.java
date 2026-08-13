@@ -6,8 +6,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
+import com.holysweet.questshop.QuestShop;
+
 public record AdminUpdateCategoryPayload(ResourceLocation categoryId, String display, boolean unlockedByDefault, int order, boolean delete) implements CustomPacketPayload {
-    public static final Type<AdminUpdateCategoryPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("questshop", "admin_update_category"));
+    public static final Type<AdminUpdateCategoryPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(QuestShop.MODID, "admin_update_category"));
     public static final StreamCodec<FriendlyByteBuf, AdminUpdateCategoryPayload> CODEC = StreamCodec.composite(
             ResourceLocation.STREAM_CODEC, AdminUpdateCategoryPayload::categoryId,
             ByteBufCodecs.STRING_UTF8, AdminUpdateCategoryPayload::display,

@@ -57,6 +57,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     private ResourceLocation selectedCategory = null;
     private final List<Button> categoryButtons = new ArrayList<>();
+    private int categoryScrollOffset = 0;
     private boolean purchasePending = false;
 
     public ShopMenuScreen(ShopMenu menu, Inventory inventory, Component title) {
@@ -195,8 +196,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int catWidth = 100;
         int catHeight = 18;
 
+        boolean allSelected = selectedCategory == null;
         Button allBtn = Button.builder(
-            Component.literal("All Items"),
+            Component.literal((allSelected ? "> " : "") + "All Items"),
             b -> {
                 selectedCategory = null;
                 refreshEntries();
@@ -215,14 +217,23 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         }
 
         int currentY = catY + catHeight + 2;
-        Map<ResourceLocation, ShopCategory> categories = ClientCategories.categories();
-        for (ShopCategory cat : categories.values()) {
-            String label = cat.display();
-            int btnW = this.editMode ? catWidth - 20 : catWidth;
-            if (label.length() > 12) {
-                label = label.substring(0, 10) + "..";
-            }
+        List<ShopCategory> catList = new ArrayList<>(ClientCategories.categories().values());
+        int maxVisible = (this.imageHeight - 35) / 20;
+        int maxScroll = Math.max(0, catList.size() - maxVisible);
+        this.categoryScrollOffset = Math.max(0, Math.min(maxScroll, this.categoryScrollOffset));
+
+        int startIndex = this.categoryScrollOffset;
+        int endIndex = Math.min(catList.size(), startIndex + maxVisible);
+
+        for (int i = startIndex; i < endIndex; i++) {
+            ShopCategory cat = catList.get(i);
             ResourceLocation catId = cat.id();
+            boolean isSelected = selectedCategory != null && selectedCategory.equals(catId);
+            String label = (isSelected ? "> " : "") + cat.display();
+            int btnW = this.editMode ? catWidth - 20 : catWidth;
+            if (label.length() > 14) {
+                label = label.substring(0, 12) + "..";
+            }
             String tooltipText = cat.display() + (cat.unlockedByDefault() ? "" : " (Locked)");
 
             Button catBtn = Button.builder(
@@ -245,9 +256,6 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             }
 
             currentY += catHeight + 2;
-            if (currentY > this.topPos + this.imageHeight - 20) {
-                break;
-            }
         }
     }
 
@@ -377,6 +385,36 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         }
         int maxAfford = userCoins / unitCost;
         setQty(Math.max(1, Math.min(999, maxAfford)));
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.activeCategoryModal != null) {
+            return this.activeCategoryModal.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+        if (this.activePicker != null) {
+            return this.activePicker.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+
+        // Check if mouse is over Sidebar panel
+        if (mouseX >= this.leftPos - 110 && mouseX <= this.leftPos - 2 && mouseY >= this.topPos && mouseY <= this.topPos + this.imageHeight) {
+            int totalCats = ClientCategories.categories().size();
+            int maxVisible = (this.imageHeight - 35) / 20;
+            int maxScroll = Math.max(0, totalCats - maxVisible);
+            if (maxScroll > 0) {
+                if (scrollY > 0) { // Scroll up
+                    this.categoryScrollOffset = Math.max(0, this.categoryScrollOffset - 1);
+                    rebuildCategorySidebar();
+                    return true;
+                } else if (scrollY < 0) { // Scroll down
+                    this.categoryScrollOffset = Math.min(maxScroll, this.categoryScrollOffset + 1);
+                    rebuildCategorySidebar();
+                    return true;
+                }
+            }
+        }
+
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override

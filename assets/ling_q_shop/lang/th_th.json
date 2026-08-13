@@ -1,0 +1,34 @@
+{
+  "item.questshop.coin": "Primogem",
+  "tooltip.questshop.coin": "§9คลิกขวาเพื่อฝากเหรียญ | SHIFT+คลิกขวาเพื่อฝากทั้งกอง§r",
+
+  "key.categories.questshop": "FtbQshop",
+  "key.questshop.open_shop": "เปิดร้านค้า FtbQshop",
+
+  "command.questshop.player_only": "คำสั่งนี้ใช้ได้เฉพาะผู้เล่นเท่านั้น",
+  "command.questshop.no_team": "%s ไม่อยู่ในทีม",
+  "command.questshop.coins_show": "ทีมของ %s มี %s Primogems",
+  "command.questshop.coins_added": "เพิ่ม %s Primogems ให้ %s (ยอดรวมใหม่: %s)",
+  "command.questshop.coins_removed": "หัก %s Primogems จาก %s (ยอดรวมใหม่: %s)",
+  "command.questshop.coins_set": "ตั้งค่ายอด Primogems ของทีม %s เป็น %s",
+
+  "questshop.buy.ok": "สั่งซื้อสำเร็จ!",
+  "questshop.buy.invalid": "สินค้านี้ไม่พร้อมใช้งานแล้ว",
+  "questshop.buy.no_coins": "Primogems ไม่พอ",
+  "questshop.buy.no_space": "ช่องเก็บของเต็ม",
+  "questshop.buy.locked": "หมวดหมู่นี้ถูกล็อกอยู่",
+  "questshop.buy.failed": "การสั่งซื้อล้มเหลว",
+  "questshop.buy.toast.detail": "ได้รับ x%1$s %2$s (-%3$s Primogems)",
+  "questshop.category.locked": "หมวดหมู่นี้ยังไม่ได้รับการปลดล็อก",
+
+  "reward.questshop.coins.amount": "จำนวน",
+  "reward.questshop.coins.title": "Primogems: %s",
+
+  "reward.questshop.category.category": "หมวดหมู่",
+  "reward.questshop.category.unlock": "ปลดล็อก",
+  "reward.questshop.category.title.unlock": "ปลดล็อกหมวดหมู่ %s",
+  "reward.questshop.category.title.lock": "ล็อกหมวดหมู่ %s",
+
+  "ftbquests.reward.questshop.coins": "Primogems",
+  "ftbquests.reward.questshop.category": "หมวดหมู่ร้านค้า"
+}

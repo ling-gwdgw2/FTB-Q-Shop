@@ -12,7 +12,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
-@EventBusSubscriber(modid = "questshop", value = Dist.CLIENT)
+import com.holysweet.questshop.QuestShop;
+
+@EventBusSubscriber(modid = QuestShop.MODID, value = Dist.CLIENT)
 public class InventoryButtonListener {
 
     @SubscribeEvent
@@ -29,7 +31,7 @@ public class InventoryButtonListener {
                         Minecraft.getInstance().player.connection.sendCommand("hqs shop");
                     }
                 }
-            ).bounds(x, y, 32, 16).tooltip(Tooltip.create(Component.literal("FtbQshop (เปิดร้านค้า)"))).build();
+            ).bounds(x, y, 32, 16).tooltip(Tooltip.create(Component.literal("ling_q_shop (เปิดร้านค้า)"))).build();
             event.addListener(shopBtn);
         }
     }
