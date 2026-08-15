@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 # Version Configuration
-$modVersion = "1.2"
+$modVersion = "1.3"
 $mcVersion  = "1.21.1"
 
 $nfJarName = "ling_q_shop-v$modVersion-neoforge-$mcVersion.jar"
