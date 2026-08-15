@@ -31,8 +31,6 @@ public class QuestShop {
     private static final ResourceKey<CreativeModeTab> TOOLS_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.withDefaultNamespace("tools_and_utilities"));
 
     public QuestShop(IEventBus modEventBus, ModContainer modContainer) {
-        com.holysweet.questshop.network.NetworkBridge.set(new com.holysweet.questshop.neoforge.network.NeoForgeNetworkBridge());
-
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::addCreative);
 

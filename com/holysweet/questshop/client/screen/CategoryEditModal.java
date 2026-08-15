@@ -2,7 +2,6 @@ package com.holysweet.questshop.client.screen;
 
 import com.holysweet.questshop.QuestShop;
 import com.holysweet.questshop.api.ShopCategory;
-import com.holysweet.questshop.network.NetworkBridge;
 import com.holysweet.questshop.network.payload.AdminUpdateCategoryPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,6 +9,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class CategoryEditModal {
 
@@ -88,13 +88,13 @@ public class CategoryEditModal {
             catId = ResourceLocation.fromNamespaceAndPath(QuestShop.MODID, path);
         }
 
-        NetworkBridge.sendToServer(new AdminUpdateCategoryPayload(catId, name, unlockedByDefault, order, false));
+        PacketDistributor.sendToServer(new AdminUpdateCategoryPayload(catId, name, unlockedByDefault, order, false));
         parent.closeCategoryModal();
     }
 
     private void onDelete() {
         if (category != null) {
-            NetworkBridge.sendToServer(new AdminUpdateCategoryPayload(category.id(), "", false, 0, true));
+            PacketDistributor.sendToServer(new AdminUpdateCategoryPayload(category.id(), "", false, 0, true));
         }
         parent.closeCategoryModal();
     }

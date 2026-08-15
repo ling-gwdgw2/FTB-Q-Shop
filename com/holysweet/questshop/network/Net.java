@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.Optional;
@@ -117,12 +118,12 @@ public class Net {
     public static void syncBalance(ServerPlayer player) {
         if (player == null) return;
         int balance = CoinsService.get(player.serverLevel(), player);
-        NetworkBridge.sendToPlayer(player, new CoinsBalancePayload(balance));
+        PacketDistributor.sendToPlayer(player, new CoinsBalancePayload(balance));
     }
 
     public static void sendCategoriesSnapshot(ServerPlayer player) {
         if (player == null) return;
-        NetworkBridge.sendToPlayer(player, new CategoriesSnapshotPayload(
+        PacketDistributor.sendToPlayer(player, new CategoriesSnapshotPayload(
                 ShopCatalog.INSTANCE.categories(),
                 CategoriesService.effectiveUnlocked(player)
         ));
@@ -137,17 +138,17 @@ public class Net {
 
     public static void sendShopData(ServerPlayer player) {
         if (player == null) return;
-        NetworkBridge.sendToPlayer(player, new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
+        PacketDistributor.sendToPlayer(player, new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
     }
 
     public static void sendShopData(net.minecraft.server.MinecraftServer server) {
         if (server == null) return;
-        NetworkBridge.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
+        PacketDistributor.sendToAllPlayers(new ShopDataPayload(ShopCatalog.INSTANCE.allEntries()));
     }
 
     private static void processPurchase(ServerPlayer player, BuyEntryPayload payload) {
         if (!CategoriesService.isUnlocked(player, payload.category())) {
-            NetworkBridge.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.LOCKED_CATEGORY));
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.LOCKED_CATEGORY));
             return;
         }
 
@@ -156,7 +157,7 @@ public class Net {
                 .findFirst();
 
         if (entryOpt.isEmpty()) {
-            NetworkBridge.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.INVALID_ENTRY));
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.INVALID_ENTRY));
             return;
         }
 
@@ -167,19 +168,19 @@ public class Net {
 
         int userCoins = CoinsService.get(player.serverLevel(), player);
         if (userCoins < totalCost) {
-            NetworkBridge.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.NOT_ENOUGH_COINS));
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.NOT_ENOUGH_COINS));
             return;
         }
 
         Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(payload.itemId());
         if (itemOpt.isEmpty()) {
-            NetworkBridge.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.INVALID_ENTRY));
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.INVALID_ENTRY));
             return;
         }
 
         ItemStack purchasedStack = new ItemStack(itemOpt.get(), totalItems);
         if (!hasInventorySpace(player, purchasedStack)) {
-            NetworkBridge.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.NO_INVENTORY_SPACE));
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.NO_INVENTORY_SPACE));
             return;
         }
 
@@ -190,7 +191,7 @@ public class Net {
             player.drop(purchasedStack, false);
         }
 
-        NetworkBridge.sendToPlayer(player, new BuyOkToastPayload(payload.itemId(), totalItems, totalCost));
+        PacketDistributor.sendToPlayer(player, new BuyOkToastPayload(payload.itemId(), totalItems, totalCost));
     }
 
     private static boolean hasInventorySpace(Player player, ItemStack itemToGive) {

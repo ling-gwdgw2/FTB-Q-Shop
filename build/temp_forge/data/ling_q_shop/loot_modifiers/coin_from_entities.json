@@ -1,9 +1,0 @@
-{
-  "type": "ling_q_shop:coin_loot",
-  "conditions": [
-    {
-      "condition": "ling_q_shop:entity_is_enemy"
-    }
-  ],
-  "item": "ling_q_shop:coin"
-}

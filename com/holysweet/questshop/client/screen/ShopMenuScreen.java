@@ -22,9 +22,9 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import com.holysweet.questshop.network.NetworkBridge;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -309,7 +309,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int amount = getQuantity();
         int cost = getPriceInput();
 
-        NetworkBridge.sendToServer(new AdminUpdateEntryPayload(itemId, amount, cost, catId));
+        PacketDistributor.sendToServer(new AdminUpdateEntryPayload(itemId, amount, cost, catId));
         ClientFX.purchaseOk(itemId, amount, cost);
     }
 
@@ -322,7 +322,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int newAmount = getQuantity();
         int newCost = getPriceInput();
 
-        NetworkBridge.sendToServer(new AdminUpdateEntryPayload(oldData.itemId(), newAmount, newCost, oldData.category()));
+        PacketDistributor.sendToServer(new AdminUpdateEntryPayload(oldData.itemId(), newAmount, newCost, oldData.category()));
         ClientFX.purchaseOk(oldData.itemId(), newAmount, newCost);
     }
 
@@ -332,7 +332,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         if (selected == null || selected.data == null) return;
 
         ShopEntry oldData = selected.data;
-        NetworkBridge.sendToServer(new AdminRemoveEntryPayload(oldData.itemId(), oldData.category()));
+        PacketDistributor.sendToServer(new AdminRemoveEntryPayload(oldData.itemId(), oldData.category()));
     }
 
     private int getQuantity() {
@@ -648,7 +648,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int totalAmount = data.amount() * qty;
         int totalCost = data.cost() * qty;
 
-        NetworkBridge.sendToServer(new BuyEntryPayload(data.itemId(), totalAmount, totalCost, data.category()));
+        PacketDistributor.sendToServer(new BuyEntryPayload(data.itemId(), totalAmount, totalCost, data.category()));
     }
 
     @Override

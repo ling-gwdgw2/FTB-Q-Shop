@@ -2,12 +2,12 @@ package com.holysweet.questshop.client.screen;
 
 import com.holysweet.questshop.QuestShop;
 import com.holysweet.questshop.api.ShopEntry;
-import com.holysweet.questshop.network.NetworkBridge;
 import com.holysweet.questshop.network.payload.AdminUpdateEntryPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -208,7 +208,7 @@ public class ShopItemPickerModal {
             if (mouseX >= slotX && mouseX < slotX + 22 && mouseY >= slotY && mouseY < slotY + 22) {
                 Item selectedItem = this.filteredItems.get(i);
                 ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(selectedItem);
-                NetworkBridge.sendToServer(new AdminUpdateEntryPayload(itemId, 1, 10, this.category));
+                PacketDistributor.sendToServer(new AdminUpdateEntryPayload(itemId, 1, 10, this.category));
                 this.parent.closeItemPicker();
                 return true;
             }
