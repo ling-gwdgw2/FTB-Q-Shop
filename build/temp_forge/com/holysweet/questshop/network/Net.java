@@ -61,7 +61,9 @@ public class Net {
 
         registrar.playToClient(BuyOkToastPayload.TYPE, BuyOkToastPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
-                // Handled on client
+                if (FMLEnvironment.dist.isClient()) {
+                    ClientHooks.onPurchaseOk(payload.itemId(), payload.amount(), payload.cost());
+                }
             });
         });
 
