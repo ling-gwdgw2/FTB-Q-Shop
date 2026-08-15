@@ -603,6 +603,12 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     public void onPurchaseOk(ResourceLocation itemId, int amount, int cost) {
         this.purchasePending = false;
+        if (this.list != null && this.list.getSelected() != null) {
+            ShopListEntry selected = (ShopListEntry) this.list.getSelected();
+            if (selected != null && selected.data != null && selected.data.itemId().equals(itemId)) {
+                com.holysweet.questshop.client.ClientPurchases.recordPurchase(selected.data.category(), itemId, amount);
+            }
+        }
         updateButtonState();
         ClientFX.purchaseOk(itemId, amount, cost);
     }
@@ -619,18 +625,23 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
                 int totalCost = data.effectiveCost() * qty;
                 int totalItems = data.amount() * qty;
 
-                String btnLabel = "Buy x" + totalItems + " (" + totalCost + " Gems)";
-                if (data.hasDiscount()) {
-                    btnLabel = "Buy x" + totalItems + " (" + totalCost + " Gems [-" + data.discountPercent() + "%])";
+                if (com.holysweet.questshop.client.ClientPurchases.isSoldOut(data)) {
+                    this.buyButton.setMessage(Component.literal("SOLD OUT"));
+                    canBuy = false;
+                } else {
+                    String btnLabel = "Buy x" + totalItems + " (" + totalCost + " Gems)";
+                    if (data.hasDiscount()) {
+                        btnLabel = "Buy x" + totalItems + " (" + totalCost + " Gems [-" + data.discountPercent() + "%])";
+                    }
+                    this.buyButton.setMessage(Component.literal(btnLabel));
+
+                    if (ClientCategories.isUnlocked(data.category()) && ClientCoins.get() >= totalCost) {
+                        canBuy = true;
+                    }
                 }
-                this.buyButton.setMessage(Component.literal(btnLabel));
 
                 if (this.priceBox != null && this.priceBox.visible) {
                     this.priceBox.setValue(String.valueOf(data.cost()));
-                }
-
-                if (ClientCategories.isUnlocked(data.category()) && ClientCoins.get() >= totalCost) {
-                    canBuy = true;
                 }
             } else {
                 this.buyButton.setMessage(Component.literal("Buy Item"));

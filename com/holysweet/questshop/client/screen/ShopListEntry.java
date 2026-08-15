@@ -3,6 +3,7 @@ package com.holysweet.questshop.client.screen;
 import com.holysweet.questshop.api.ShopEntry;
 import com.holysweet.questshop.client.ClientCategories;
 import com.holysweet.questshop.client.ClientCoins;
+import com.holysweet.questshop.client.ClientPurchases;
 import com.holysweet.questshop.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -41,6 +42,7 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
     @Override
     public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isHovered, float partialTick) {
         boolean unlocked = ClientCategories.isUnlocked(this.data.category());
+        boolean isSoldOut = ClientPurchases.isSoldOut(this.data);
         int effectiveCost = this.data.effectiveCost();
         boolean affordable = ClientCoins.get() >= effectiveCost;
 
@@ -49,7 +51,7 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
         guiGraphics.fill(left, top, left + width, bgY, bgColor);
 
         // Gold Highlight Frame on Hover
-        if (isHovered) {
+        if (isHovered && !isSoldOut) {
             int goldColor = 0xFFFFD700;
             guiGraphics.fill(left, top, left + width, top + 1, goldColor);
             guiGraphics.fill(left, bgY - 1, left + width, bgY, goldColor);
@@ -68,7 +70,7 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
         if (this.data.hasDiscount()) {
             String discountStr = "-" + this.data.discountPercent() + "%";
             int badgeW = this.mc.font.width(discountStr) + 4;
-            guiGraphics.fill(currentX, top + 4, currentX + badgeW, top + 14, 0xFFCC2222);
+            guiGraphics.fill(currentX, top + 4, currentX + badgeW, top + 14, isSoldOut ? 0xFF555555 : 0xFFCC2222);
             guiGraphics.drawString(this.mc.font, discountStr, currentX + 2, top + 5, 0xFFFFFFFF, false);
             currentX += badgeW + 3;
         }
@@ -77,36 +79,47 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
         if (this.data.hasDailyLimit()) {
             String limitStr = "1/Day";
             int limitW = this.mc.font.width(limitStr) + 4;
-            guiGraphics.fill(currentX, top + 4, currentX + limitW, top + 14, 0xFF1E88E5);
+            guiGraphics.fill(currentX, top + 4, currentX + limitW, top + 14, isSoldOut ? 0xFF555555 : 0xFF1E88E5);
             guiGraphics.drawString(this.mc.font, limitStr, currentX + 2, top + 5, 0xFFFFFFFF, false);
             currentX += limitW + 3;
         }
 
         // 4. Item Name
         int textY = top + 6;
-        int textColor = unlocked ? 0xFFFFFFFF : 0xFFB0B0B0;
+        int textColor = isSoldOut ? 0xFF777777 : (unlocked ? 0xFFFFFFFF : 0xFFB0B0B0);
         guiGraphics.drawString(this.mc.font, this.name, currentX, textY, textColor, false);
 
-        // 5. Price & Coin Icon
+        // 5. Price & Coin Icon OR Sold Out Badge
         int coinX = left + width - 18;
-        String costStr = Math.max(1, this.data.amount()) + "x  " + effectiveCost;
-        int costColor = !unlocked ? 0xFFB0B0B0 : (affordable ? 0xFF55FF55 : 0xFFFF5555);
-        int costWidth = this.mc.font.width(costStr);
-        int costX = coinX - 4 - costWidth;
+        if (isSoldOut) {
+            String soldOutStr = "SOLD OUT";
+            int soldW = this.mc.font.width(soldOutStr) + 6;
+            int soldX = left + width - soldW - 4;
+            guiGraphics.fill(soldX, top + 3, soldX + soldW, top + 15, 0xFF444444);
+            guiGraphics.drawString(this.mc.font, soldOutStr, soldX + 3, textY, 0xFFB0B0B0, false);
+        } else {
+            String costStr = Math.max(1, this.data.amount()) + "x  " + effectiveCost;
+            int costColor = !unlocked ? 0xFFB0B0B0 : (affordable ? 0xFF55FF55 : 0xFFFF5555);
+            int costWidth = this.mc.font.width(costStr);
+            int costX = coinX - 4 - costWidth;
 
-        // If discounted, draw original price with strikethrough before discounted price
-        if (this.data.hasDiscount()) {
-            String origStr = String.valueOf(this.data.cost());
-            int origW = this.mc.font.width(origStr);
-            int origX = costX - 4 - origW;
-            guiGraphics.drawString(this.mc.font, origStr, origX, textY, 0xFFAAAAAA, false);
-            guiGraphics.fill(origX - 1, textY + 4, origX + origW + 1, textY + 5, 0xFFFF3333);
+            // If discounted, draw original price with strikethrough before discounted price
+            if (this.data.hasDiscount()) {
+                String origStr = String.valueOf(this.data.cost());
+                int origW = this.mc.font.width(origStr);
+                int origX = costX - 4 - origW;
+                guiGraphics.drawString(this.mc.font, origStr, origX, textY, 0xFFAAAAAA, false);
+                guiGraphics.fill(origX - 1, textY + 4, origX + origW + 1, textY + 5, 0xFFFF3333);
+            }
+
+            guiGraphics.drawString(this.mc.font, costStr, costX, textY, costColor, false);
+            guiGraphics.renderItem(this.coinIcon, coinX, top + 1);
         }
 
-        guiGraphics.drawString(this.mc.font, costStr, costX, textY, costColor, false);
-        guiGraphics.renderItem(this.coinIcon, coinX, top + 1);
-
-        if (!unlocked) {
+        // Overlay for locked or sold out or unaffordable
+        if (isSoldOut) {
+            guiGraphics.fill(left, top, left + width, bgY, 0x88111111);
+        } else if (!unlocked) {
             guiGraphics.fill(left, top, left + width, bgY, 0x66000000);
         } else if (!affordable) {
             guiGraphics.fill(left, top, left + width, bgY, 0x1B000000);

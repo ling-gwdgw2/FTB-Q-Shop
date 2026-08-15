@@ -19,12 +19,17 @@ public class Config {
     public static final ModConfigSpec.BooleanValue ENABLE_TOAST_NOTIFICATIONS;
 
     // ==========================================
-    // 3. Daily Flash Deals & Stock Settings
+    // 3. Daily Flash Deals Settings
     // ==========================================
     public static final ModConfigSpec.BooleanValue ENABLE_DAILY_DEALS;
     public static final ModConfigSpec.IntValue DEALS_COUNT;
+    public static final ModConfigSpec.IntValue FIXED_DISCOUNT_PERCENT;
     public static final ModConfigSpec.IntValue MIN_DISCOUNT_PERCENT;
     public static final ModConfigSpec.IntValue MAX_DISCOUNT_PERCENT;
+
+    // ==========================================
+    // 4. Stock & Purchase Limits Settings
+    // ==========================================
     public static final ModConfigSpec.BooleanValue ENABLE_PURCHASE_LIMITS;
 
     static final ModConfigSpec SPEC;
@@ -47,19 +52,26 @@ public class Config {
 
         BUILDER.comment("Show popup toast notifications when receiving coins or buying items.");
         ENABLE_TOAST_NOTIFICATIONS = BUILDER.define("enableToastNotifications", true);
+        BUILDER.pop();
 
+        BUILDER.push("daily_deals");
         BUILDER.comment("Enable Daily Flash Deals (Random discounted items refreshed every 24 in-game hours).");
         ENABLE_DAILY_DEALS = BUILDER.define("enableDailyDeals", true);
 
-        BUILDER.comment("Number of random items in Daily Flash Deals.");
+        BUILDER.comment("Number of random items in Daily Flash Deals (1 to 10).");
         DEALS_COUNT = BUILDER.defineInRange("dealsCount", 3, 1, 10);
 
-        BUILDER.comment("Minimum discount percentage for Daily Flash Deals (5 to 90%).");
+        BUILDER.comment("Fixed discount percentage (0 to use random min/max range, or set e.g. 20, 30, 50 for fixed discount).");
+        FIXED_DISCOUNT_PERCENT = BUILDER.defineInRange("fixedDiscountPercent", 0, 0, 90);
+
+        BUILDER.comment("Minimum discount percentage when random discount is used (5 to 90%).");
         MIN_DISCOUNT_PERCENT = BUILDER.defineInRange("minDiscountPercent", 20, 5, 90);
 
-        BUILDER.comment("Maximum discount percentage for Daily Flash Deals (5 to 90%).");
+        BUILDER.comment("Maximum discount percentage when random discount is used (5 to 90%).");
         MAX_DISCOUNT_PERCENT = BUILDER.defineInRange("maxDiscountPercent", 50, 5, 90);
+        BUILDER.pop();
 
+        BUILDER.push("limits");
         BUILDER.comment("Enable Stock and Daily Purchase Limits enforcement.");
         ENABLE_PURCHASE_LIMITS = BUILDER.define("enablePurchaseLimits", true);
         BUILDER.pop();

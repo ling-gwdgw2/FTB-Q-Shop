@@ -33,10 +33,10 @@ public class DailyDealsService {
     public static void generateNewDeals(MinecraftServer server) {
         if (server == null) return;
 
-        // 1. Ensure Special Deals Category exists at top order
+        // 1. Ensure Special Deals Category exists at top order with clean English name
         ShopCategory dealsCategory = new ShopCategory(
                 DEALS_CATEGORY_ID,
-                "🔥 โปรโมชั่น",
+                "Special Deals",
                 true,
                 -100
         );
@@ -54,14 +54,20 @@ public class DailyDealsService {
 
         Collections.shuffle(candidates, new Random());
         int count = Math.min(Config.DEALS_COUNT.get(), candidates.size());
+        int fixedDiscount = Config.FIXED_DISCOUNT_PERCENT.get();
         int minDiscount = Math.max(5, Config.MIN_DISCOUNT_PERCENT.get());
         int maxDiscount = Math.min(90, Math.max(minDiscount, Config.MAX_DISCOUNT_PERCENT.get()));
 
         List<ShopEntry> newDeals = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             ShopEntry original = candidates.get(i);
-            int discount = (ThreadLocalRandom.current().nextInt(minDiscount, maxDiscount + 1) / 5) * 5;
-            if (discount <= 0) discount = 20;
+            int discount;
+            if (fixedDiscount > 0) {
+                discount = fixedDiscount;
+            } else {
+                discount = (ThreadLocalRandom.current().nextInt(minDiscount, maxDiscount + 1) / 5) * 5;
+                if (discount <= 0) discount = 20;
+            }
 
             ShopEntry dealEntry = new ShopEntry(
                     original.itemId(),
