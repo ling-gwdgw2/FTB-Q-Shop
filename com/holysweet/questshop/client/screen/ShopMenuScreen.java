@@ -192,9 +192,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         }
         categoryButtons.clear();
 
-        int catX = this.leftPos - 105;
+        int catX = this.leftPos - 110;
         int catY = this.topPos + 8;
-        int catWidth = 100;
+        int catWidth = 106;
         int catHeight = 18;
 
         boolean allSelected = selectedCategory == null;
@@ -212,7 +212,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             this.addCategoryBtn = Button.builder(
                 Component.literal("+ Cat"),
                 b -> openCategoryModal(null)
-            ).bounds(catX + 64, catY, 36, catHeight).tooltip(Tooltip.create(Component.literal("Add New Category"))).build();
+            ).bounds(catX + 70, catY, 36, catHeight).tooltip(Tooltip.create(Component.literal("Add New Category"))).build();
             this.addRenderableWidget(this.addCategoryBtn);
             categoryButtons.add(this.addCategoryBtn);
         }
@@ -232,8 +232,12 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             boolean isSelected = selectedCategory != null && selectedCategory.equals(catId);
             String label = (isSelected ? "> " : "") + cat.display();
             int btnW = this.editMode ? catWidth - 20 : catWidth;
-            if (label.length() > 14) {
-                label = label.substring(0, 12) + "..";
+            int maxTextW = btnW - 8;
+            if (this.font.width(label) > maxTextW) {
+                while (label.length() > 3 && this.font.width(label + "..") > maxTextW) {
+                    label = label.substring(0, label.length() - 1);
+                }
+                label = label + "..";
             }
             String tooltipText = cat.display() + (cat.unlockedByDefault() ? "" : " (Locked)");
 

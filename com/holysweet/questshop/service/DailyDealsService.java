@@ -36,7 +36,7 @@ public class DailyDealsService {
         // 1. Ensure Special Deals Category exists at top order
         ShopCategory dealsCategory = new ShopCategory(
                 DEALS_CATEGORY_ID,
-                "🔥 โปรโมชั่นพิเศษ",
+                "🔥 โปรโมชั่น",
                 true,
                 -100
         );
