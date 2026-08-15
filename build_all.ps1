@@ -69,10 +69,6 @@ Write-Host "  -> Created: $fgJar" -ForegroundColor Green
 Copy-Item $nfJar "$distDir/ling_q_shop-neoforge-1.21.1.jar" -Force
 Copy-Item $fgJar "$distDir/ling_q_shop-forge-1.21.1.jar" -Force
 
-# Standard fallback name for existing profiles
-Copy-Item $nfJar "$distDir/ling_q_shop-1.2.jar" -Force
-Copy-Item $nfJar "$projectRoot/ling_q_shop-1.2.jar" -Force
-
 # Cleanup temp build folders
 Remove-Item -Recurse -Force $tempNf -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force $tempFg -ErrorAction SilentlyContinue
