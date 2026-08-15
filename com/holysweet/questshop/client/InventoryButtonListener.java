@@ -1,5 +1,6 @@
 package com.holysweet.questshop.client;
 
+import com.holysweet.questshop.Config;
 import com.holysweet.questshop.QuestShop;
 import com.holysweet.questshop.item.ModItems;
 import net.minecraft.client.Minecraft;
@@ -44,6 +45,7 @@ public class InventoryButtonListener {
 
     @SubscribeEvent
     public static void onScreenInit(Post event) {
+        if (!Config.ENABLE_INVENTORY_BUTTON.get()) return;
         if (event.getScreen() instanceof InventoryScreen || event.getScreen() instanceof CreativeModeInventoryScreen) {
             AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) event.getScreen();
             int x = InventoryScreenHelper.getLeft(screen) + 148;
