@@ -41,7 +41,8 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
     @Override
     public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isHovered, float partialTick) {
         boolean unlocked = ClientCategories.isUnlocked(this.data.category());
-        boolean affordable = ClientCoins.get() >= this.data.cost();
+        int effectiveCost = this.data.effectiveCost();
+        boolean affordable = ClientCoins.get() >= effectiveCost;
 
         int bgY = top + height;
         int bgColor = isHovered ? 0x45000000 : 0x22000000;
@@ -62,17 +63,45 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
         guiGraphics.renderItem(this.icon, iconX, iconY);
         guiGraphics.renderItemDecorations(this.mc.font, this.icon, iconX, iconY);
 
-        // 2. Item Name
+        // 2. Discount Badge
+        int currentX = left + 24;
+        if (this.data.hasDiscount()) {
+            String discountStr = "-" + this.data.discountPercent() + "%";
+            int badgeW = this.mc.font.width(discountStr) + 4;
+            guiGraphics.fill(currentX, top + 4, currentX + badgeW, top + 14, 0xFFCC2222);
+            guiGraphics.drawString(this.mc.font, discountStr, currentX + 2, top + 5, 0xFFFFFFFF, false);
+            currentX += badgeW + 3;
+        }
+
+        // 3. Stock / Daily Limit Badge
+        if (this.data.hasDailyLimit()) {
+            String limitStr = "1/Day";
+            int limitW = this.mc.font.width(limitStr) + 4;
+            guiGraphics.fill(currentX, top + 4, currentX + limitW, top + 14, 0xFF1E88E5);
+            guiGraphics.drawString(this.mc.font, limitStr, currentX + 2, top + 5, 0xFFFFFFFF, false);
+            currentX += limitW + 3;
+        }
+
+        // 4. Item Name
         int textY = top + 6;
         int textColor = unlocked ? 0xFFFFFFFF : 0xFFB0B0B0;
-        guiGraphics.drawString(this.mc.font, this.name, left + 24, textY, textColor, false);
+        guiGraphics.drawString(this.mc.font, this.name, currentX, textY, textColor, false);
 
-        // 3. Price & Coin Icon
-        String costStr = Math.max(1, this.data.amount()) + "x  " + this.data.cost();
+        // 5. Price & Coin Icon
+        int coinX = left + width - 18;
+        String costStr = Math.max(1, this.data.amount()) + "x  " + effectiveCost;
         int costColor = !unlocked ? 0xFFB0B0B0 : (affordable ? 0xFF55FF55 : 0xFFFF5555);
         int costWidth = this.mc.font.width(costStr);
-        int coinX = left + width - 18;
         int costX = coinX - 4 - costWidth;
+
+        // If discounted, draw original price with strikethrough before discounted price
+        if (this.data.hasDiscount()) {
+            String origStr = String.valueOf(this.data.cost());
+            int origW = this.mc.font.width(origStr);
+            int origX = costX - 4 - origW;
+            guiGraphics.drawString(this.mc.font, origStr, origX, textY, 0xFFAAAAAA, false);
+            guiGraphics.fill(origX - 1, textY + 4, origX + origW + 1, textY + 5, 0xFFFF3333);
+        }
 
         guiGraphics.drawString(this.mc.font, costStr, costX, textY, costColor, false);
         guiGraphics.renderItem(this.coinIcon, coinX, top + 1);
@@ -83,7 +112,7 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
             guiGraphics.fill(left, top, left + width, bgY, 0x1B000000);
         }
 
-        // 4. Hover Tooltip
+        // 6. Hover Tooltip
         if (isHovered && mouseX >= iconX && mouseX <= iconX + 18 && mouseY >= iconY && mouseY <= iconY + 18 && !this.icon.isEmpty()) {
             guiGraphics.renderTooltip(this.mc.font, this.icon, mouseX, mouseY);
         }

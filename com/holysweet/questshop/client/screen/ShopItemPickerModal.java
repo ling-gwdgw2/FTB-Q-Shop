@@ -208,7 +208,7 @@ public class ShopItemPickerModal {
             if (mouseX >= slotX && mouseX < slotX + 22 && mouseY >= slotY && mouseY < slotY + 22) {
                 Item selectedItem = this.filteredItems.get(i);
                 ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(selectedItem);
-                PacketDistributor.sendToServer(new AdminUpdateEntryPayload(itemId, 1, 10, this.category));
+                PacketDistributor.sendToServer(new AdminUpdateEntryPayload(itemId, 1, 10, this.category, 0, -1));
                 this.parent.closeItemPicker();
                 return true;
             }

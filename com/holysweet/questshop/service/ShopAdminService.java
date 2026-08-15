@@ -38,7 +38,15 @@ public class ShopAdminService {
         if (!hasAdminPermission(admin) || payload == null) return;
 
         MinecraftServer server = admin.getServer();
-        ShopEntry entry = new ShopEntry(payload.itemId(), payload.amount(), payload.cost(), payload.category());
+        ShopEntry entry = new ShopEntry(
+                payload.itemId(),
+                payload.amount(),
+                payload.cost(),
+                payload.category(),
+                payload.dailyLimit(),
+                payload.totalStock(),
+                0
+        );
         ShopCatalog.INSTANCE.addOrUpdateEntry(entry);
         ShopCatalog.INSTANCE.saveToDisk(server);
 

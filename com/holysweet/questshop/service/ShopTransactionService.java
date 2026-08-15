@@ -39,17 +39,24 @@ public class ShopTransactionService {
 
         ShopEntry entry = entryOpt.get();
         int qtyMultiplier = Math.max(1, payload.amount() / Math.max(1, entry.amount()));
-        int totalCost = entry.cost() * qtyMultiplier;
+        int totalCost = entry.effectiveCost() * qtyMultiplier;
         int totalItems = entry.amount() * qtyMultiplier;
 
-        // 3. Validate coin balance
+        // 3. Validate Stock and Daily Purchase Limits
+        BuyResultPayload.Code limitCheck = ShopStockService.canPurchase(player, entry, qtyMultiplier);
+        if (limitCheck != BuyResultPayload.Code.OK) {
+            PacketDistributor.sendToPlayer(player, new BuyResultPayload(limitCheck));
+            return;
+        }
+
+        // 4. Validate coin balance
         int userCoins = CoinsService.get(player.serverLevel(), player);
         if (userCoins < totalCost) {
             PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.NOT_ENOUGH_COINS));
             return;
         }
 
-        // 4. Validate item registry
+        // 5. Validate item registry
         Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(payload.itemId());
         if (itemOpt.isEmpty()) {
             PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.INVALID_ENTRY));
@@ -58,21 +65,22 @@ public class ShopTransactionService {
 
         ItemStack purchasedStack = new ItemStack(itemOpt.get(), totalItems);
 
-        // 5. Validate inventory space
+        // 6. Validate inventory space
         if (!hasInventorySpace(player, purchasedStack)) {
             PacketDistributor.sendToPlayer(player, new BuyResultPayload(BuyResultPayload.Code.NO_INVENTORY_SPACE));
             return;
         }
 
-        // 6. Execute atomic transaction
+        // 7. Execute atomic transaction
         CoinsService.add(player.serverLevel(), player, -totalCost);
+        ShopStockService.recordPurchase(player, entry, qtyMultiplier);
         Net.syncBalance(player);
 
         if (!player.getInventory().add(purchasedStack)) {
             player.drop(purchasedStack, false);
         }
 
-        // 7. Send success feedback
+        // 8. Send success feedback
         PacketDistributor.sendToPlayer(player, new BuyOkToastPayload(payload.itemId(), totalItems, totalCost));
     }
 

@@ -322,7 +322,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         int newAmount = getQuantity();
         int newCost = getPriceInput();
 
-        PacketDistributor.sendToServer(new AdminUpdateEntryPayload(oldData.itemId(), newAmount, newCost, oldData.category()));
+        PacketDistributor.sendToServer(new AdminUpdateEntryPayload(oldData.itemId(), newAmount, newCost, oldData.category(), oldData.dailyLimit(), oldData.totalStock()));
         ClientFX.purchaseOk(oldData.itemId(), newAmount, newCost);
     }
 
@@ -583,19 +583,24 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     public void onPurchaseResult(BuyResultPayload.Code code) {
         this.purchasePending = false;
-        switch (code) {
-            case INVALID_ENTRY -> ClientFX.purchaseError(Component.translatable("questshop.buy.invalid"));
-            case NOT_ENOUGH_COINS -> ClientFX.purchaseError(Component.translatable("questshop.buy.no_coins"));
-            case NO_INVENTORY_SPACE -> ClientFX.purchaseError(Component.translatable("questshop.buy.no_space"));
-            case LOCKED_CATEGORY -> ClientFX.purchaseError(Component.translatable("questshop.buy.locked"));
-        }
         updateButtonState();
+        if (code != BuyResultPayload.Code.OK) {
+            String transKey = switch (code) {
+                case NOT_ENOUGH_COINS -> "ling_q_shop.buy.no_coins";
+                case NO_INVENTORY_SPACE -> "ling_q_shop.buy.no_space";
+                case LOCKED_CATEGORY -> "ling_q_shop.buy.locked";
+                case OUT_OF_STOCK -> "ling_q_shop.buy.out_of_stock";
+                case DAILY_LIMIT_REACHED -> "ling_q_shop.buy.daily_limit";
+                default -> "ling_q_shop.buy.invalid";
+            };
+            ClientFX.purchaseError(Component.translatable(transKey));
+        }
     }
 
     public void onPurchaseOk(ResourceLocation itemId, int amount, int cost) {
         this.purchasePending = false;
-        ClientFX.purchaseOk(itemId, amount, cost);
         updateButtonState();
+        ClientFX.purchaseOk(itemId, amount, cost);
     }
 
     public void updateButtonState() {
@@ -607,10 +612,14 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             ShopListEntry selected = (ShopListEntry) this.list.getSelected();
             if (selected != null && selected.data != null) {
                 ShopEntry data = selected.data;
-                int totalCost = data.cost() * qty;
+                int totalCost = data.effectiveCost() * qty;
                 int totalItems = data.amount() * qty;
 
-                this.buyButton.setMessage(Component.literal("Buy x" + totalItems + " (" + totalCost + " Gems)"));
+                String btnLabel = "Buy x" + totalItems + " (" + totalCost + " Gems)";
+                if (data.hasDiscount()) {
+                    btnLabel = "Buy x" + totalItems + " (" + totalCost + " Gems [-" + data.discountPercent() + "%])";
+                }
+                this.buyButton.setMessage(Component.literal(btnLabel));
 
                 if (this.priceBox != null && this.priceBox.visible) {
                     this.priceBox.setValue(String.valueOf(data.cost()));
@@ -646,7 +655,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         ShopEntry data = selected.data;
         int qty = getQuantity();
         int totalAmount = data.amount() * qty;
-        int totalCost = data.cost() * qty;
+        int totalCost = data.effectiveCost() * qty;
 
         PacketDistributor.sendToServer(new BuyEntryPayload(data.itemId(), totalAmount, totalCost, data.category()));
     }

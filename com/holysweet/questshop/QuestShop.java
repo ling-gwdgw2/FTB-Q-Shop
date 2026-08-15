@@ -62,5 +62,6 @@ public class QuestShop {
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("[FtbQshop] Loading shop categories and entries from config disk...");
         ShopCatalog.INSTANCE.loadFromDisk(event.getServer());
+        com.holysweet.questshop.service.DailyDealsService.checkAndRefreshDeals(event.getServer());
     }
 }
