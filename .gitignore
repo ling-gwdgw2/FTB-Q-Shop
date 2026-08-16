@@ -1,4 +1,15 @@
-.cache/
+# Build outputs and caches
 build/
+.cache/
+.gradle/
+*.class
+compile_errors.log
+args.txt
+javac_args.txt
+
+# OS & IDE metadata
+.idea/
+*.iml
+.vscode/
 .DS_Store
 Thumbs.db

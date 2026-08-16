@@ -101,13 +101,15 @@ public class Net {
         });
     }
 
-    // ==========================================
-    // Server Broadcast & Sync Utilities
-    // ==========================================
+    public static void sendCoinsBalance(ServerPlayer player, int balance) {
+        if (player == null) return;
+        PacketDistributor.sendToPlayer(player, new CoinsBalancePayload(balance));
+    }
+
     public static void syncBalance(ServerPlayer player) {
         if (player == null) return;
         int balance = CoinsService.get(player.serverLevel(), player);
-        PacketDistributor.sendToPlayer(player, new CoinsBalancePayload(balance));
+        sendCoinsBalance(player, balance);
     }
 
     public static void sendCategoriesSnapshot(ServerPlayer player) {

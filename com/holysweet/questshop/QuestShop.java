@@ -4,7 +4,7 @@ import com.holysweet.questshop.client.ClientInit;
 import com.holysweet.questshop.data.ShopCatalog;
 import com.holysweet.questshop.integrations.IntegrationBootstrap;
 import com.holysweet.questshop.item.ModItems;
-import com.holysweet.questshop.loot.LootConditions;
+import com.holysweet.questshop.loot.conditions.LootConditions;
 import com.holysweet.questshop.loot.ModLootModifiers;
 import com.holysweet.questshop.registry.ModMenuTypes;
 import com.mojang.logging.LogUtils;
