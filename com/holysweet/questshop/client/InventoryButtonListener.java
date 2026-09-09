@@ -34,11 +34,33 @@ public class InventoryButtonListener {
 
         @Override
         protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+            int x = this.getX();
+            int y = this.getY();
+            int w = this.getWidth();
+            int h = this.getHeight();
+            boolean hovered = this.isHoveredOrFocused();
+
+            // Custom pixel-perfect frame (prevents texture squishing from resource packs)
+            int bg = hovered ? 0xE028283C : 0xD0161622;
+            int borderTopLeft = hovered ? 0xFFFFD700 : 0xFF555566;
+            int borderBottomRight = hovered ? 0xFFFFA000 : 0xFF22222E;
+
+            // Fill background
+            guiGraphics.fill(x, y, x + w, y + h, bg);
+
+            // Clean beveled border
+            guiGraphics.fill(x, y, x + w, y + 1, borderTopLeft); // Top
+            guiGraphics.fill(x, y, x + 1, y + h, borderTopLeft); // Left
+            guiGraphics.fill(x, y + h - 1, x + w, y + h, borderBottomRight); // Bottom
+            guiGraphics.fill(x + w - 1, y, x + w, y + h, borderBottomRight); // Right
+
+            // Render Primogem coin icon centered
+            int iconX = x + (w - 16) / 2;
+            int iconY = y + (h - 16) / 2;
             if (!this.coinStack.isEmpty()) {
-                guiGraphics.renderItem(this.coinStack, this.getX() + 1, this.getY() + 1);
+                guiGraphics.renderItem(this.coinStack, iconX, iconY);
             } else {
-                guiGraphics.blit(this.coinTexture, this.getX() + 1, this.getY() + 1, 0, 0, 16, 16, 16, 16);
+                guiGraphics.blit(this.coinTexture, iconX, iconY, 0, 0, 16, 16, 16, 16);
             }
         }
     }
@@ -55,10 +77,10 @@ public class InventoryButtonListener {
                 x, y,
                 btn -> {
                     if (Minecraft.getInstance().player != null) {
-                        Minecraft.getInstance().player.connection.sendCommand("hqs shop");
+                        Minecraft.getInstance().player.connection.sendCommand("shop");
                     }
                 },
-                Tooltip.create(Component.literal("LING Quest Shop (เปิดร้านค้า)"))
+                Tooltip.create(Component.literal("§6✦ LING Quest Shop\n§eคลิกเพื่อเปิดร้านค้า (§f/shop§e)"))
             );
             event.addListener(shopBtn);
         }

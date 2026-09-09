@@ -52,5 +52,29 @@ public final class LingShopCommands {
 
         // 2. Direct shorthand command: /shop
         dispatcher.register(Commands.literal("shop").executes(ShopCommands::openShop));
+
+        // 3. Backwards-compatible alias: /hqs
+        LiteralArgumentBuilder<CommandSourceStack> hqs = Commands.literal("hqs")
+                .executes(ShopCommands::openShop);
+        hqs.then(Commands.literal("shop").executes(ShopCommands::openShop));
+        hqs.then(Commands.literal("balance").executes(CoinsCommands::showSelf));
+        hqs.then(Commands.literal("addcoins")
+                .requires(src -> src.hasPermission(2))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(1))
+                                .executes(CoinsCommands::addCoins))));
+        hqs.then(Commands.literal("removecoins")
+                .requires(src -> src.hasPermission(2))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(1))
+                                .executes(CoinsCommands::removeCoins))));
+        hqs.then(Commands.literal("setcoins")
+                .requires(src -> src.hasPermission(2))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(0))
+                                .executes(CoinsCommands::setCoins))));
+        hqs.then(CoinsCommands.subtree());
+        hqs.then(CategoriesCommands.subtree());
+        dispatcher.register(hqs);
     }
 }
