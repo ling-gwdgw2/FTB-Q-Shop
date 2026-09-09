@@ -31,9 +31,9 @@ When in Creative Mode (`/gamemode creative`), admins can edit the shop directly 
 
 | Command | Permission | Description |
 | :--- | :--- | :--- |
-| `/shop` or `/lingshop` or `/hqs` | All Players | Opens the `ling_q_shop` GUI |
-| `/lingshop shop` or `/hqs shop` | All Players | Opens the `ling_q_shop` GUI |
-| `/lingshop balance` or `/hqs balance` | All Players | Checks your current Primogem coin balance |
+| `/shop` or `/lingshop` | All Players | Opens the `ling_q_shop` GUI |
+| `/lingshop shop` | All Players | Opens the `ling_q_shop` GUI |
+| `/lingshop balance` | All Players | Checks your current Primogem coin balance |
 | `/lingshop addcoins <player> <amount>` | Admin (OP Level 2) | Adds Primogem coins to a player/team balance |
 | `/lingshop removecoins <player> <amount>` | Admin (OP Level 2) | Removes Primogem coins from a player/team balance |
 | `/lingshop setcoins <player> <amount>` | Admin (OP Level 2) | Sets the exact Primogem coin balance for a player/team |

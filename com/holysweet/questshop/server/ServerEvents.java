@@ -2,7 +2,7 @@ package com.holysweet.questshop.server;
 
 import com.holysweet.questshop.QuestShop;
 import com.holysweet.questshop.network.Net;
-import com.holysweet.questshop.server.commands.HqsCommands;
+import com.holysweet.questshop.server.commands.LingShopCommands;
 import com.holysweet.questshop.service.CoinsService;
 import com.holysweet.questshop.service.DailyDealsService;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +19,7 @@ public class ServerEvents {
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
-        HqsCommands.register(event.getDispatcher(), event.getBuildContext());
+        LingShopCommands.register(event.getDispatcher(), event.getBuildContext());
     }
 
     @SubscribeEvent
