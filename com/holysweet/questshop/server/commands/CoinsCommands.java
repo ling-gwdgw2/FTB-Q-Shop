@@ -26,34 +26,34 @@ public final class CoinsCommands {
                         .requires(src -> src.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
-                                        .executes(CoinsCommands::addCoins))))
+                                         .executes(CoinsCommands::addCoins))))
                 .then(Commands.literal("remove")
                         .requires(src -> src.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
-                                        .executes(CoinsCommands::removeCoins))))
+                                         .executes(CoinsCommands::removeCoins))))
                 .then(Commands.literal("set")
                         .requires(src -> src.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .then(Commands.argument("amount", IntegerArgumentType.integer(0))
-                                        .executes(CoinsCommands::setCoins))));
+                                         .executes(CoinsCommands::setCoins))));
     }
 
-    private static int showSelf(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    public static int showSelf(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         int coins = CoinsService.get(player.serverLevel(), player);
         ctx.getSource().sendSuccess(() -> Component.translatable("command.ling_q_shop.coins_show", player.getDisplayName(), coins), false);
         return coins;
     }
 
-    private static int showOther(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    public static int showOther(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
         int coins = CoinsService.get(player.serverLevel(), player);
         ctx.getSource().sendSuccess(() -> Component.translatable("command.ling_q_shop.coins_show", player.getDisplayName(), coins), false);
         return coins;
     }
 
-    private static int addCoins(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    public static int addCoins(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
         int updated = CoinsService.add(player.serverLevel(), player, amount);
@@ -61,7 +61,7 @@ public final class CoinsCommands {
         return updated;
     }
 
-    private static int removeCoins(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    public static int removeCoins(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
         int updated = CoinsService.add(player.serverLevel(), player, -amount);
@@ -69,7 +69,7 @@ public final class CoinsCommands {
         return updated;
     }
 
-    private static int setCoins(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    public static int setCoins(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
         int updated = CoinsService.set(player.serverLevel(), player, amount);

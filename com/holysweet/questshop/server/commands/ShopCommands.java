@@ -20,7 +20,7 @@ public final class ShopCommands {
                 .executes(ShopCommands::openShop);
     }
 
-    private static int openShop(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    public static int openShop(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         Net.sendCategoriesSnapshot(player);
         Net.sendShopData(player);

@@ -39,6 +39,8 @@ cp_jars = []
 
 # Priority 1.21.1 NeoForge and vanilla client jars
 priority_jars = [
+    os.path.join(curseforge_libs, "net", "neoforged", "fancymodloader", "loader", "4.0.43", "loader-4.0.43.jar"),
+    os.path.join(curseforge_libs, "net", "neoforged", "fancymodloader", "loader", "4.0.44", "loader-4.0.44.jar"),
     os.path.join(curseforge_libs, "net", "neoforged", "neoforge", "21.1.244", "neoforge-21.1.244-client.jar"),
     os.path.join(curseforge_libs, "net", "neoforged", "neoforge", "21.1.244", "neoforge-21.1.244-universal.jar"),
     os.path.join(curseforge_libs, "net", "minecraft", "client", "1.21.1-20240808.144430", "client-1.21.1-20240808.144430-extra.jar"),
@@ -50,11 +52,11 @@ for pj in priority_jars:
     if os.path.exists(pj) and is_valid_jar(pj):
         cp_jars.append(pj.replace("\\", "/"))
 
-# Scan libraries excluding old forge jars
+# Scan libraries excluding old forge jars and mismatched loader versions
 if os.path.exists(curseforge_libs):
     for root, _, files in os.walk(curseforge_libs):
         for f in files:
-            if f.endswith(".jar") and "minecraftforge" not in root.lower():
+            if f.endswith(".jar") and "minecraftforge" not in root.lower() and "11.0.16" not in root.lower():
                 full = os.path.join(root, f)
                 if is_valid_jar(full) and full.replace("\\", "/") not in cp_jars:
                     cp_jars.append(full.replace("\\", "/"))
