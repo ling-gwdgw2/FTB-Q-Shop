@@ -89,7 +89,7 @@ data/
 * **Version**: 1.3
 * **Target Minecraft**: NeoForge 1.21.1 (NeoForge 21.1.208+)
 * **Website**: [Garden of Dreams](https://garden-of-dreams-4768a.firebaseapp.com/)
-* **GitHub Repository**: [ling-gwdgw2/FTB-Q-Shop](https://github.com/ling-gwdgw2/FTB-Q-Shop)
+* **GitHub Repository**: [ling-gwdgw2/Ling-Gem-Shop](https://github.com/ling-gwdgw2/Ling-Gem-Shop)
 
 ---
 

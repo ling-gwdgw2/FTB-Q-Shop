@@ -15,7 +15,7 @@ loaderVersion="[1,)" #mandatory
 license="CC-BY-NC-SA-4.0"
 
 # A URL to refer people to when problems occur with this mod
-issueTrackerURL="https://github.com/ling-gwdgw2/FTB-Q-Shop/issues" #optional
+issueTrackerURL="https://github.com/ling-gwdgw2/Ling-Gem-Shop/issues" #optional
 
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
