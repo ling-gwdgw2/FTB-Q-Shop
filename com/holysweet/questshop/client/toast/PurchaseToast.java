@@ -11,7 +11,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 
 public final class PurchaseToast implements Toast {
-    private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/toasts.png");
+    private static final ResourceLocation BACKGROUND_SPRITE = ResourceLocation.withDefaultNamespace("toast/system");
     private final ItemStack icon;
     private final Component title;
     private final Component desc;
@@ -30,7 +30,7 @@ public final class PurchaseToast implements Toast {
             this.startTime = timeSinceLastVisible;
         }
 
-        guiGraphics.blit(TEXTURE, 0, 0, 0, 0, this.width(), this.height());
+        guiGraphics.blitSprite(BACKGROUND_SPRITE, 0, 0, this.width(), this.height());
 
         if (this.title != null) {
             guiGraphics.drawString(toastComponent.getMinecraft().font, this.title, 30, 7, 0xFFFF00, false);
@@ -53,7 +53,10 @@ public final class PurchaseToast implements Toast {
 
     @Override
     public int width() {
-        return 160;
+        Minecraft mc = Minecraft.getInstance();
+        int titleW = this.title != null ? mc.font.width(this.title) : 0;
+        int descW = this.desc != null ? mc.font.width(this.desc) : 0;
+        return Math.max(160, 34 + Math.max(titleW, descW) + 12);
     }
 
     @Override
