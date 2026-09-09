@@ -22,6 +22,11 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
     private final ItemStack icon;
     private final ItemStack coinIcon;
     private final Component name;
+    private ShopList parentList;
+
+    public void setParent(ShopList parentList) {
+        this.parentList = parentList;
+    }
 
     public ShopListEntry(ShopEntry data) {
         this.mc = Minecraft.getInstance();
@@ -45,18 +50,28 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
         boolean isSoldOut = ClientPurchases.isSoldOut(this.data);
         int effectiveCost = this.data.effectiveCost();
         boolean affordable = ClientCoins.get() >= effectiveCost;
+        boolean isSelected = this.parentList != null && this.parentList.getSelected() == this;
 
         int bgY = top + height;
-        int bgColor = isHovered ? 0x45000000 : 0x22000000;
-        guiGraphics.fill(left, top, left + width, bgY, bgColor);
 
-        // Gold Highlight Frame on Hover
-        if (isHovered && !isSoldOut) {
+        if (isSelected) {
+            // Selected item: vibrant blue accent with gold border
+            guiGraphics.fill(left, top, left + width, bgY, 0x551E88E5);
             int goldColor = 0xFFFFD700;
             guiGraphics.fill(left, top, left + width, top + 1, goldColor);
             guiGraphics.fill(left, bgY - 1, left + width, bgY, goldColor);
             guiGraphics.fill(left, top, left + 1, bgY, goldColor);
             guiGraphics.fill(left + width - 1, top, left + width, bgY, goldColor);
+        } else if (isHovered && !isSoldOut) {
+            // Hovered item: subtle highlight with bright border
+            guiGraphics.fill(left, top, left + width, bgY, 0x33446699);
+            int hoverColor = 0xAA64B5F6;
+            guiGraphics.fill(left, top, left + width, top + 1, hoverColor);
+            guiGraphics.fill(left, bgY - 1, left + width, bgY, hoverColor);
+            guiGraphics.fill(left, top, left + 1, bgY, hoverColor);
+            guiGraphics.fill(left + width - 1, top, left + width, bgY, hoverColor);
+        } else {
+            guiGraphics.fill(left, top, left + width, bgY, 0x22000000);
         }
 
         // 1. Item icon
@@ -84,37 +99,48 @@ public class ShopListEntry extends ObjectSelectionList.Entry<ShopListEntry> {
             currentX += limitW + 3;
         }
 
-        // 4. Item Name
-        int textY = top + 6;
-        int textColor = isSoldOut ? 0xFF777777 : (unlocked ? 0xFFFFFFFF : 0xFFB0B0B0);
-        guiGraphics.drawString(this.mc.font, this.name, currentX, textY, textColor, false);
-
         // 5. Price & Coin Icon OR Sold Out Badge
         int coinX = left + width - 18;
+        int costX;
         if (isSoldOut) {
             String soldOutStr = "SOLD OUT";
             int soldW = this.mc.font.width(soldOutStr) + 6;
-            int soldX = left + width - soldW - 4;
-            guiGraphics.fill(soldX, top + 3, soldX + soldW, top + 15, 0xFF444444);
-            guiGraphics.drawString(this.mc.font, soldOutStr, soldX + 3, textY, 0xFFB0B0B0, false);
+            costX = left + width - soldW - 4;
+            guiGraphics.fill(costX, top + 3, costX + soldW, top + 15, 0xFF444444);
+            guiGraphics.drawString(this.mc.font, soldOutStr, costX + 3, top + 6, 0xFFB0B0B0, false);
         } else {
             String costStr = Math.max(1, this.data.amount()) + "x  " + effectiveCost;
             int costColor = !unlocked ? 0xFFB0B0B0 : (affordable ? 0xFF55FF55 : 0xFFFF5555);
             int costWidth = this.mc.font.width(costStr);
-            int costX = coinX - 4 - costWidth;
+            costX = coinX - 4 - costWidth;
 
             // If discounted, draw original price with strikethrough before discounted price
             if (this.data.hasDiscount()) {
                 String origStr = String.valueOf(this.data.cost());
                 int origW = this.mc.font.width(origStr);
                 int origX = costX - 4 - origW;
-                guiGraphics.drawString(this.mc.font, origStr, origX, textY, 0xFFAAAAAA, false);
-                guiGraphics.fill(origX - 1, textY + 4, origX + origW + 1, textY + 5, 0xFFFF3333);
+                guiGraphics.drawString(this.mc.font, origStr, origX, top + 6, 0xFFAAAAAA, false);
+                guiGraphics.fill(origX - 1, top + 10, origX + origW + 1, top + 11, 0xFFFF3333);
+                costX = origX;
             }
 
-            guiGraphics.drawString(this.mc.font, costStr, costX, textY, costColor, false);
+            guiGraphics.drawString(this.mc.font, costStr, coinX - 4 - costWidth, top + 6, costColor, false);
             guiGraphics.renderItem(this.coinIcon, coinX, top + 1);
         }
+
+        // 4. Item Name (safely truncated if it exceeds available space)
+        int textY = top + 6;
+        int textColor = isSoldOut ? 0xFF777777 : (unlocked ? 0xFFFFFFFF : 0xFFB0B0B0);
+        int maxNameW = Math.max(20, costX - currentX - 8);
+        Component displayName = this.name;
+        if (this.mc.font.width(displayName) > maxNameW) {
+            String raw = displayName.getString();
+            while (raw.length() > 3 && this.mc.font.width(raw + "..") > maxNameW) {
+                raw = raw.substring(0, raw.length() - 1);
+            }
+            displayName = Component.literal(raw + "..");
+        }
+        guiGraphics.drawString(this.mc.font, displayName, currentX, textY, textColor, false);
 
         // Overlay for locked or sold out or unaffordable
         if (isSoldOut) {

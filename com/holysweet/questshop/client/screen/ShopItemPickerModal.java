@@ -48,11 +48,11 @@ public class ShopItemPickerModal {
         this.filteredItems = new ArrayList<>(this.allItems);
     }
 
-    public void init(int leftPos, int topPos) {
+    public void init(int leftPos, int topPos, int imageWidth, int imageHeight) {
         int modalWidth = 240;
         int modalHeight = 190;
-        int modalX = leftPos + (280 - modalWidth) / 2;
-        int modalY = topPos + (230 - modalHeight) / 2;
+        int modalX = leftPos + (imageWidth - modalWidth) / 2;
+        int modalY = topPos + (imageHeight - modalHeight) / 2;
 
         // Search bar
         this.searchBox = new EditBox(Minecraft.getInstance().font, modalX + 10, modalY + 8, modalWidth - 20, 16, Component.literal("Search"));
@@ -101,14 +101,14 @@ public class ShopItemPickerModal {
         if (this.nextBtn != null) this.nextBtn.active = this.currentPage < maxPages - 1;
     }
 
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, int leftPos, int topPos) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, int leftPos, int topPos, int imageWidth, int imageHeight) {
         int modalWidth = 240;
         int modalHeight = 190;
-        int modalX = leftPos + (280 - modalWidth) / 2;
-        int modalY = topPos + (230 - modalHeight) / 2;
+        int modalX = leftPos + (imageWidth - modalWidth) / 2;
+        int modalY = topPos + (imageHeight - modalHeight) / 2;
 
-        // Dark background overlay
-        guiGraphics.fill(leftPos - 110, topPos, leftPos + 280, topPos + 230, 0xCC000000);
+        // Dark background overlay covering full game window
+        guiGraphics.fill(0, 0, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), 0xCC000000);
 
         // Modal window background
         guiGraphics.fill(modalX, modalY, modalX + modalWidth, modalY + modalHeight, 0xF0141420);

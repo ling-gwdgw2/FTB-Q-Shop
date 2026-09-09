@@ -19,11 +19,19 @@ public class ShopList extends ObjectSelectionList<ShopListEntry> {
     }
 
     public void setEntries(List<ShopListEntry> entries) {
+        ShopListEntry previous = this.getSelected();
         this.clearEntries();
+        ShopListEntry toSelect = null;
         for (ShopListEntry entry : entries) {
+            entry.setParent(this);
             this.addEntry(entry);
+            if (previous != null && previous.data != null && previous.data.itemId().equals(entry.data.itemId())) {
+                toSelect = entry;
+            }
         }
-        if (!entries.isEmpty() && this.getSelected() == null) {
+        if (toSelect != null) {
+            this.setSelected(toSelect);
+        } else if (!entries.isEmpty() && this.getSelected() == null) {
             this.setSelected(entries.get(0));
         }
     }
