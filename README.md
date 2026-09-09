@@ -90,3 +90,16 @@ data/
 * **Target Minecraft**: NeoForge 1.21.1 (NeoForge 21.1.208+)
 * **Website**: [Garden of Dreams](https://garden-of-dreams-4768a.firebaseapp.com/)
 * **GitHub Repository**: [ling-gwdgw2/FTB-Q-Shop](https://github.com/ling-gwdgw2/FTB-Q-Shop)
+
+---
+
+## ⚖️ License
+
+This project is licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International** (CC BY-NC-SA 4.0) License.
+
+* **Attribution**: You must give appropriate credit to **LingRube**, provide a link to the license, and indicate if changes were made.
+* **NonCommercial**: You may not use the material for commercial purposes.
+* **ShareAlike**: If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+See the [LICENSE](LICENSE) file for the full legal terms.
+

@@ -1,3 +1,7 @@
+# Copyright (c) 2024 LingRube.
+# Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0).
+# See LICENSE file in the project root for full license information.
+
 import os
 import subprocess
 import glob
@@ -21,7 +25,7 @@ if os.path.exists(out_jar):
 if os.path.exists(root_jar):
     os.remove(root_jar)
 
-# 1. Collect CP with valid zipfile check
+# 1. Collect Classpath with valid zipfile check
 def is_valid_jar(p):
     if not p.endswith(".jar"): return False
     try:
@@ -32,61 +36,81 @@ def is_valid_jar(p):
         return False
 
 user_home = os.path.expanduser("~")
-gradle_cache = os.path.join(user_home, ".gradle", "caches")
-curseforge_libs = os.path.join(user_home, "curseforge", "minecraft", "Install", "libraries")
+gradle_cache = os.environ.get("GRADLE_USER_HOME", os.path.join(user_home, ".gradle"))
+gradle_modules = os.path.join(gradle_cache, "caches", "modules-2")
+
+# Candidate standard library roots
+lib_roots = [
+    os.environ.get("MINECRAFT_LIBRARIES", ""),
+    os.environ.get("NEOFORGE_LIBRARIES", ""),
+    os.path.join(user_home, "curseforge", "minecraft", "Install", "libraries"),
+    os.path.join(user_home, ".minecraft", "libraries"),
+    os.path.join(os.environ.get("APPDATA", ""), ".minecraft", "libraries")
+]
 
 cp_jars = []
 
 # Priority 1.21.1 NeoForge and vanilla client jars
-priority_jars = [
-    os.path.join(curseforge_libs, "net", "neoforged", "fancymodloader", "loader", "4.0.43", "loader-4.0.43.jar"),
-    os.path.join(curseforge_libs, "net", "neoforged", "fancymodloader", "loader", "4.0.44", "loader-4.0.44.jar"),
-    os.path.join(curseforge_libs, "net", "neoforged", "neoforge", "21.1.244", "neoforge-21.1.244-client.jar"),
-    os.path.join(curseforge_libs, "net", "neoforged", "neoforge", "21.1.244", "neoforge-21.1.244-universal.jar"),
-    os.path.join(curseforge_libs, "net", "minecraft", "client", "1.21.1-20240808.144430", "client-1.21.1-20240808.144430-extra.jar"),
-    os.path.join(curseforge_libs, "net", "minecraft", "client", "1.21.1-20240808.144430", "client-1.21.1-20240808.144430-srg.jar"),
-    os.path.join(curseforge_libs, "net", "minecraft", "client", "1.21.1", "client-1.21.1-official.jar")
-]
+for lib_root in lib_roots:
+    if not lib_root or not os.path.exists(lib_root):
+        continue
+    priority_jars = [
+        os.path.join(lib_root, "net", "neoforged", "fancymodloader", "loader", "4.0.43", "loader-4.0.43.jar"),
+        os.path.join(lib_root, "net", "neoforged", "fancymodloader", "loader", "4.0.44", "loader-4.0.44.jar"),
+        os.path.join(lib_root, "net", "neoforged", "neoforge", "21.1.244", "neoforge-21.1.244-client.jar"),
+        os.path.join(lib_root, "net", "neoforged", "neoforge", "21.1.244", "neoforge-21.1.244-universal.jar"),
+        os.path.join(lib_root, "net", "minecraft", "client", "1.21.1-20240808.144430", "client-1.21.1-20240808.144430-extra.jar"),
+        os.path.join(lib_root, "net", "minecraft", "client", "1.21.1-20240808.144430", "client-1.21.1-20240808.144430-srg.jar"),
+        os.path.join(lib_root, "net", "minecraft", "client", "1.21.1", "client-1.21.1-official.jar")
+    ]
+    for pj in priority_jars:
+        if os.path.exists(pj) and is_valid_jar(pj):
+            normalized = pj.replace("\\", "/")
+            if normalized not in cp_jars:
+                cp_jars.append(normalized)
 
-for pj in priority_jars:
-    if os.path.exists(pj) and is_valid_jar(pj):
-        cp_jars.append(pj.replace("\\", "/"))
-
-# Scan libraries excluding old forge jars and mismatched loader versions
-if os.path.exists(curseforge_libs):
-    for root, _, files in os.walk(curseforge_libs):
+    # Scan libraries excluding old forge and mismatched loader versions
+    for root, _, files in os.walk(lib_root):
         for f in files:
             if f.endswith(".jar") and "minecraftforge" not in root.lower() and "11.0.16" not in root.lower():
                 full = os.path.join(root, f)
-                if is_valid_jar(full) and full.replace("\\", "/") not in cp_jars:
-                    cp_jars.append(full.replace("\\", "/"))
+                if is_valid_jar(full):
+                    normalized = full.replace("\\", "/")
+                    if normalized not in cp_jars:
+                        cp_jars.append(normalized)
 
-# Scan gradle caches for mod dependencies (FTB, etc.)
-if os.path.exists(gradle_cache):
-    for root, _, files in os.walk(os.path.join(gradle_cache, "modules-2")):
+# Scan gradle caches for mod dependencies (FTB, Architectury, etc.)
+if os.path.exists(gradle_modules):
+    for root, _, files in os.walk(gradle_modules):
         for f in files:
             if f.endswith(".jar") and not f.endswith("-sources.jar") and not f.endswith("-javadoc.jar"):
-                if "ftb" in f.lower() or "architectury" in f.lower():
+                if "ftb" in f.lower() or "architectury" in f.lower() or "neoforge" in f.lower():
                     full = os.path.join(root, f)
-                    if is_valid_jar(full) and full.replace("\\", "/") not in cp_jars:
-                        cp_jars.append(full.replace("\\", "/") )
+                    if is_valid_jar(full):
+                        normalized = full.replace("\\", "/")
+                        if normalized not in cp_jars:
+                            cp_jars.append(normalized)
 
-# Scan NeoForge 1.21.1 instances if available
-nf_instance_mods = os.path.join(user_home, "curseforge", "minecraft", "Instances", "ling_q_shop-v1.3-neoforge", "mods")
-if os.path.exists(nf_instance_mods):
-    for f in os.listdir(nf_instance_mods):
+# Optional additional mod libraries directory via environment variable
+extra_mods_dir = os.environ.get("MC_MODS_DIR")
+if extra_mods_dir and os.path.exists(extra_mods_dir):
+    for f in os.listdir(extra_mods_dir):
         if f.endswith(".jar") and not f.startswith("ling_q_shop"):
-            full = os.path.join(nf_instance_mods, f)
-            if is_valid_jar(full) and full.replace("\\", "/") not in cp_jars:
-                cp_jars.append(full.replace("\\", "/"))
+            full = os.path.join(extra_mods_dir, f)
+            if is_valid_jar(full):
+                normalized = full.replace("\\", "/")
+                if normalized not in cp_jars:
+                    cp_jars.append(normalized)
 
-# Local libs folder if available
+# Local libs folder if available in repository
 local_libs = os.path.join(project_root, "libs")
 if os.path.exists(local_libs):
     for f in os.listdir(local_libs):
         full = os.path.join(local_libs, f)
-        if is_valid_jar(full) and full.replace("\\", "/") not in cp_jars:
-            cp_jars.append(full.replace("\\", "/"))
+        if is_valid_jar(full):
+            normalized = full.replace("\\", "/")
+            if normalized not in cp_jars:
+                cp_jars.append(normalized)
 
 classpath = ";".join(cp_jars)
 
