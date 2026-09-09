@@ -85,4 +85,9 @@ public class InventoryButtonListener {
             event.addListener(shopBtn);
         }
     }
+
+    @SubscribeEvent
+    public static void onClientLogout(net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientPurchases.reset();
+    }
 }

@@ -3,6 +3,7 @@ package com.holysweet.questshop.network;
 import com.holysweet.questshop.client.ClientCategories;
 import com.holysweet.questshop.client.ClientCoins;
 import com.holysweet.questshop.client.ClientHooks;
+import com.holysweet.questshop.client.ClientPurchases;
 import com.holysweet.questshop.client.ClientShopData;
 import com.holysweet.questshop.data.ShopCatalog;
 import com.holysweet.questshop.network.payload.*;
@@ -43,6 +44,7 @@ public class Net {
             ctx.enqueueWork(() -> {
                 ClientShopData.set(payload.entries());
                 if (FMLEnvironment.dist.isClient()) {
+                    ClientPurchases.reset();
                     ClientHooks.refreshShopMenuEntries();
                 }
             });

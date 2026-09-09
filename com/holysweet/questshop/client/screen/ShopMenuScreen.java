@@ -68,6 +68,21 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     private int categoryScrollOffset = 0;
     private boolean purchasePending = false;
 
+    // Cache preview stack to eliminate per-frame allocations during rendering
+    private ShopEntry cachedPreviewEntry = null;
+    private ItemStack cachedPreviewStack = ItemStack.EMPTY;
+
+    private ItemStack getPreviewStack(ShopEntry entry) {
+        if (entry == null) return ItemStack.EMPTY;
+        if (entry.equals(this.cachedPreviewEntry) && !this.cachedPreviewStack.isEmpty()) {
+            return this.cachedPreviewStack;
+        }
+        this.cachedPreviewEntry = entry;
+        Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(entry.itemId());
+        this.cachedPreviewStack = itemOpt.map(item -> new ItemStack(item, entry.amount())).orElse(ItemStack.EMPTY);
+        return this.cachedPreviewStack;
+    }
+
     public ShopMenuScreen(ShopMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = 560;
@@ -688,9 +703,8 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
             return;
         }
 
-        Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(selectedEntry.itemId());
-        if (itemOpt.isEmpty()) return;
-        ItemStack previewStack = new ItemStack(itemOpt.get(), selectedEntry.amount());
+        ItemStack previewStack = getPreviewStack(selectedEntry);
+        if (previewStack.isEmpty()) return;
 
         // Pedestal Holographic Glow
         int pedestalCenterX = boxX + boxW / 2;
@@ -730,9 +744,8 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         ShopEntry selectedEntry = getSelectedEntry();
         if (selectedEntry == null) return;
 
-        Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(selectedEntry.itemId());
-        if (itemOpt.isEmpty()) return;
-        ItemStack stack = new ItemStack(itemOpt.get(), selectedEntry.amount());
+        ItemStack stack = getPreviewStack(selectedEntry);
+        if (stack.isEmpty()) return;
 
         int inspectorX = getInspectorX();
         int inspectorY = getContentY();

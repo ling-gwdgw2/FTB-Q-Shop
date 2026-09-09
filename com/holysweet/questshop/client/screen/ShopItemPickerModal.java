@@ -28,7 +28,8 @@ public class ShopItemPickerModal {
     private Button nextBtn;
     private Button cancelBtn;
 
-    private final List<Item> allItems = new ArrayList<>();
+    private record ItemSearchEntry(Item item, String searchId, String searchName) {}
+    private final List<ItemSearchEntry> allEntries = new ArrayList<>();
     private List<Item> filteredItems = new ArrayList<>();
 
     private int currentPage = 0;
@@ -42,10 +43,13 @@ public class ShopItemPickerModal {
 
         for (Item item : BuiltInRegistries.ITEM) {
             if (item != Items.AIR) {
-                this.allItems.add(item);
+                ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+                String idStr = key.toString().toLowerCase();
+                String nameStr = item.getName(item.getDefaultInstance()).getString().toLowerCase();
+                this.allEntries.add(new ItemSearchEntry(item, idStr, nameStr));
             }
         }
-        this.filteredItems = new ArrayList<>(this.allItems);
+        this.filteredItems = this.allEntries.stream().map(ItemSearchEntry::item).toList();
     }
 
     public void init(int leftPos, int topPos, int imageWidth, int imageHeight) {
@@ -72,17 +76,11 @@ public class ShopItemPickerModal {
     private void filterItems(String query) {
         String q = query.toLowerCase().trim();
         if (q.isEmpty()) {
-            this.filteredItems = new ArrayList<>(this.allItems);
+            this.filteredItems = this.allEntries.stream().map(ItemSearchEntry::item).toList();
         } else {
-            this.filteredItems = this.allItems.stream()
-                    .filter(item -> {
-                        ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
-                        if (key.toString().toLowerCase().contains(q) || key.getPath().toLowerCase().contains(q)) {
-                            return true;
-                        }
-                        String name = item.getName(new ItemStack(item)).getString().toLowerCase();
-                        return name.contains(q);
-                    })
+            this.filteredItems = this.allEntries.stream()
+                    .filter(e -> e.searchId().contains(q) || e.searchName().contains(q))
+                    .map(ItemSearchEntry::item)
                     .toList();
         }
         this.currentPage = 0;
@@ -136,7 +134,7 @@ public class ShopItemPickerModal {
             int slotY = startY + row * slotSize;
 
             Item item = this.filteredItems.get(i);
-            ItemStack stack = new ItemStack(item);
+            ItemStack stack = item.getDefaultInstance();
 
             boolean isHovered = mouseX >= slotX && mouseX < slotX + 22 && mouseY >= slotY && mouseY < slotY + 22;
             int slotBg = isHovered ? 0x60FFFFFF : 0x20FFFFFF;

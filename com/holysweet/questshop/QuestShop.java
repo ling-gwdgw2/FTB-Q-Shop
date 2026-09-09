@@ -38,6 +38,8 @@ public class QuestShop {
             modEventBus.addListener(ClientInit::onRegisterScreens);
         }
 
+        modEventBus.addListener(com.holysweet.questshop.network.NetworkHandler::registerPayloads);
+
         ModMenuTypes.MENU_TYPES.register(modEventBus);
         ModItems.register(modEventBus);
         LootConditions.CONDITIONS.register(modEventBus);
