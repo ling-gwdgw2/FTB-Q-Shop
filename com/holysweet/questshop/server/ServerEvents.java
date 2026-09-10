@@ -29,6 +29,7 @@ public class ServerEvents {
                 Net.sendCoinsBalance(player, CoinsService.get(player.serverLevel(), player));
                 Net.sendCategoriesSnapshot(player);
                 Net.sendShopData(player);
+                Net.sendTeamMembers(player);
             } catch (Exception ignored) {}
         }
     }

@@ -35,4 +35,10 @@ public class ClientHooks {
             ClientFX.purchaseOk(itemId, amount, cost);
         }
     }
+
+    public static void updateTeamData() {
+        if (Minecraft.getInstance().screen instanceof ShopMenuScreen screen) {
+            screen.updateTeamData();
+        }
+    }
 }

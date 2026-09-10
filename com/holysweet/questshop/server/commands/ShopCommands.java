@@ -24,6 +24,7 @@ public final class ShopCommands {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         Net.sendCategoriesSnapshot(player);
         Net.sendShopData(player);
+        Net.sendTeamMembers(player);
 
         player.openMenu(new SimpleMenuProvider(
                 (windowId, inv, p) -> new ShopMenu(windowId, inv),

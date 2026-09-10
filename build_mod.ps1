@@ -9,7 +9,7 @@ Set-Location $projectRoot
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host " Building LING Quest Shop (NeoForge)   " -ForegroundColor Cyan
-Write-Host " Version: 1.3 | MC: 1.21.1             " -ForegroundColor Cyan
+Write-Host " Version: 1.4 | MC: 1.21.1             " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
 python "$projectRoot/compile_neoforge.py"

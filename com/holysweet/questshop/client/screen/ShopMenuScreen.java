@@ -62,6 +62,8 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     private ShopItemPickerModal activePicker = null;
     private CategoryEditModal activeCategoryModal = null;
+    private TeamMembersModal activeTeamModal = null;
+    private Button teamBtn;
 
     private ResourceLocation selectedCategory = null;
     private final List<Button> categoryButtons = new ArrayList<>();
@@ -141,6 +143,17 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
                 .tooltip(Tooltip.create(Component.literal("Close (ESC)")))
                 .build();
         this.addRenderableWidget(this.closeBtn);
+
+        // Team Members Button in Header
+        int teamBtnW = 54;
+        int teamBtnX = closeBtnX - 95 - teamBtnW;
+        this.teamBtn = Button.builder(
+                Component.literal("👥 Team"),
+                b -> openTeamModal()
+        ).bounds(teamBtnX, this.topPos + 5, teamBtnW, 16)
+         .tooltip(Tooltip.create(Component.literal("§6✦ Team Gem Summary\n§eคลิกเพื่อดูยอดเหรียญของสมาชิกในทีม")))
+         .build();
+        this.addRenderableWidget(this.teamBtn);
 
         // 1. Column 1: Sidebar Category Buttons
         rebuildCategorySidebar();
@@ -354,6 +367,19 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
         this.activeCategoryModal = null;
     }
 
+    public void openTeamModal() {
+        this.activeTeamModal = new TeamMembersModal(this);
+        this.activeTeamModal.init(this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
+    }
+
+    public void closeTeamModal() {
+        this.activeTeamModal = null;
+    }
+
+    public void updateTeamData() {
+        // Automatically syncs when payload arrives
+    }
+
     private void refreshEditUI() {
         boolean showEdit = this.editMode;
 
@@ -465,6 +491,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.activeTeamModal != null) {
+            return this.activeTeamModal.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
         if (this.activeCategoryModal != null) {
             return this.activeCategoryModal.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
@@ -497,6 +526,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.activeTeamModal != null) {
+            return this.activeTeamModal.mouseClicked(mouseX, mouseY, button);
+        }
         if (this.activeCategoryModal != null) {
             return this.activeCategoryModal.mouseClicked(mouseX, mouseY, button);
         }
@@ -508,6 +540,9 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.activeTeamModal != null) {
+            return this.activeTeamModal.keyPressed(keyCode, scanCode, modifiers);
+        }
         if (this.activeCategoryModal != null) {
             return this.activeCategoryModal.keyPressed(keyCode, scanCode, modifiers);
         }
@@ -598,13 +633,15 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 
-        if (this.activeCategoryModal != null || this.activePicker != null) {
+        if (this.activeCategoryModal != null || this.activePicker != null || this.activeTeamModal != null) {
             this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
 
             if (this.activeCategoryModal != null) {
                 this.activeCategoryModal.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
-            } else {
+            } else if (this.activePicker != null) {
                 this.activePicker.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
+            } else if (this.activeTeamModal != null) {
+                this.activeTeamModal.render(guiGraphics, mouseX, mouseY, partialTick, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
             }
         } else {
             super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -615,7 +652,7 @@ public class ShopMenuScreen extends AbstractContainerScreen<ShopMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if (this.activePicker != null || this.activeCategoryModal != null) return;
+        if (this.activePicker != null || this.activeCategoryModal != null || this.activeTeamModal != null) return;
 
         // Title in Header
         guiGraphics.drawString(this.font, "§6§l✦ LING SHOP§r §7// 商店", 8, 8, 0xFFFFFF, false);

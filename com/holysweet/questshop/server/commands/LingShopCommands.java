@@ -23,6 +23,10 @@ public final class LingShopCommands {
         root.then(Commands.literal("balance")
                 .executes(CoinsCommands::showSelf));
 
+        // /lingshop team - Checks team members and gem contributions
+        root.then(Commands.literal("team")
+                .executes(TeamCommands::showTeam));
+
         // /lingshop addcoins <player> <amount> (OP Level 2)
         root.then(Commands.literal("addcoins")
                 .requires(src -> src.hasPermission(2))
@@ -50,14 +54,17 @@ public final class LingShopCommands {
 
         dispatcher.register(root);
 
-        // 2. Direct shorthand command: /shop
-        dispatcher.register(Commands.literal("shop").executes(ShopCommands::openShop));
+        // 2. Direct shorthand command: /shop (and /shop team)
+        dispatcher.register(Commands.literal("shop")
+                .executes(ShopCommands::openShop)
+                .then(Commands.literal("team").executes(TeamCommands::showTeam)));
 
         // 3. Backwards-compatible alias: /hqs
         LiteralArgumentBuilder<CommandSourceStack> hqs = Commands.literal("hqs")
                 .executes(ShopCommands::openShop);
         hqs.then(Commands.literal("shop").executes(ShopCommands::openShop));
         hqs.then(Commands.literal("balance").executes(CoinsCommands::showSelf));
+        hqs.then(Commands.literal("team").executes(TeamCommands::showTeam));
         hqs.then(Commands.literal("addcoins")
                 .requires(src -> src.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.player())

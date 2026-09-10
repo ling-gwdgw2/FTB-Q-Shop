@@ -22,6 +22,7 @@ public final class FTBTeamsIntegration {
 
     private static void onCollectProperties(TeamCollectPropertiesEvent event) {
         event.add(TeamCoins.COINS);
+        event.add(TeamCoins.MEMBER_CONTRIBUTIONS);
         event.add(TeamCategories.CATEGORY_SETTINGS);
     }
 }

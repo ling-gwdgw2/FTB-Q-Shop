@@ -21,9 +21,14 @@ When in Creative Mode (`/gamemode creative`), admins can edit the shop directly 
 * **Category Manager (`+ Cat` / `E`)**: Create, edit, and delete categories directly inside the game.
 
 ### 3. Convenient Access Methods
-*  **Inventory Button**: Automatic `Shop` button integrated into the player inventory screen (`E`).
-*  **Keybinding**: Press **`B`** (configurable) to open the shop instantly.
-*  **FTB Quests Integration**: Compatible with FTB Quests & FTB Teams for team economy and quest reward unlocking.
+* **Inventory Button**: Automatic `Shop` button integrated into the player inventory screen (`E`).
+* **Keybinding**: Press **`B`** (configurable) to open the shop instantly.
+* **FTB Quests Integration**: Compatible with FTB Quests & FTB Teams for team economy and quest reward unlocking.
+
+### 4. Team Contribution Tracker & 16:9 UI (v1.4)
+* **Real-time Member Breakdown**: Tracks earned vs. spent Primogems for each party member in FTB Teams.
+* **16:9 Team Modal**: Click the `👥 Team` button directly in the 16:9 shop header to view all members, online statuses, contribution percentages, and visual progress bars.
+* **Team Command**: Run `/lingshop team` or `/shop team` to print team stats directly in chat.
 
 ---
 
@@ -33,6 +38,7 @@ When in Creative Mode (`/gamemode creative`), admins can edit the shop directly 
 | :--- | :--- | :--- |
 | `/shop` or `/lingshop` | All Players | Opens the `ling_q_shop` GUI |
 | `/lingshop shop` | All Players | Opens the `ling_q_shop` GUI |
+| `/lingshop team` or `/shop team` | All Players | Displays team member coin contributions and balance |
 | `/lingshop balance` | All Players | Checks your current Primogem coin balance |
 | `/lingshop addcoins <player> <amount>` | Admin (OP Level 2) | Adds Primogem coins to a player/team balance |
 | `/lingshop removecoins <player> <amount>` | Admin (OP Level 2) | Removes Primogem coins from a player/team balance |
@@ -86,7 +92,7 @@ data/
 
 * **Mod Name**: LING Quest Shop (`ling_q_shop`)
 * **Author**: LingRube
-* **Version**: 1.3
+* **Version**: 1.4
 * **Target Minecraft**: NeoForge 1.21.1 (NeoForge 21.1.208+)
 * **Website**: [Garden of Dreams](https://garden-of-dreams-4768a.firebaseapp.com/)
 * **GitHub Repository**: [ling-gwdgw2/Ling-Gem-Shop](https://github.com/ling-gwdgw2/Ling-Gem-Shop)

@@ -3,6 +3,7 @@ package com.holysweet.questshop.service;
 import com.holysweet.questshop.api.coins.AccountRef;
 import com.holysweet.questshop.api.coins.CoinsProvider;
 import com.holysweet.questshop.network.Net;
+import com.holysweet.questshop.network.payload.TeamMembersPayload;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,9 +43,14 @@ public final class CoinsService {
     }
 
     public static int add(ServerLevel level, ServerPlayer player, int delta) {
-        int res = add(level, handleFor(player), delta);
+        int res = provider().add(level, player, delta);
         Net.sendCoinsBalance(player, res);
+        Net.sendTeamMembers(player);
         return res;
+    }
+
+    public static TeamMembersPayload getTeamData(ServerPlayer player) {
+        return provider().getTeamData(player);
     }
 
     public static int get(ServerLevel level, AccountRef ref) {
@@ -69,6 +75,7 @@ public final class CoinsService {
             AccountRef pRef = handleFor(player);
             if (pRef.equals(ref)) {
                 Net.sendCoinsBalance(player, get(level, ref));
+                Net.sendTeamMembers(player);
             }
         }
     }

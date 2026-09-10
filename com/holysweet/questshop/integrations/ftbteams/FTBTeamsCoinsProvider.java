@@ -63,4 +63,20 @@ public final class FTBTeamsCoinsProvider implements CoinsProvider {
         }
         return 0;
     }
+
+    @Override
+    public int add(ServerLevel level, ServerPlayer player, int delta) {
+        AccountRef ref = handleFor(player);
+        int res = add(level, ref, delta);
+        if (player != null) {
+            Optional<Team> teamOpt = FTBTeamsAPI.api().getManager().getTeamForPlayer(player);
+            teamOpt.ifPresent(team -> TeamCoins.recordMemberDelta(team, player.getUUID(), delta));
+        }
+        return res;
+    }
+
+    @Override
+    public com.holysweet.questshop.network.payload.TeamMembersPayload getTeamData(ServerPlayer player) {
+        return TeamCoins.buildTeamPayload(player);
+    }
 }

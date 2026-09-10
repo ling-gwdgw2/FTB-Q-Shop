@@ -5,6 +5,7 @@ import com.holysweet.questshop.client.ClientCoins;
 import com.holysweet.questshop.client.ClientHooks;
 import com.holysweet.questshop.client.ClientPurchases;
 import com.holysweet.questshop.client.ClientShopData;
+import com.holysweet.questshop.client.ClientTeamData;
 import com.holysweet.questshop.data.ShopCatalog;
 import com.holysweet.questshop.network.payload.*;
 import com.holysweet.questshop.service.CategoriesService;
@@ -66,10 +67,27 @@ public class Net {
             });
         });
 
+        registrar.playToClient(TeamMembersPayload.TYPE, TeamMembersPayload.CODEC, (payload, ctx) -> {
+            ctx.enqueueWork(() -> {
+                ClientTeamData.set(payload);
+                if (FMLEnvironment.dist.isClient()) {
+                    ClientHooks.updateTeamData();
+                }
+            });
+        });
+
         // ==========================================
         // Server-Bound Packets (Client -> Server)
         // Routed directly to Service Layer
         // ==========================================
+        registrar.playToServer(RequestTeamMembersPayload.TYPE, RequestTeamMembersPayload.CODEC, (payload, ctx) -> {
+            ctx.enqueueWork(() -> {
+                if (ctx.player() instanceof ServerPlayer player) {
+                    sendTeamMembers(player);
+                }
+            });
+        });
+
         registrar.playToServer(BuyEntryPayload.TYPE, BuyEntryPayload.CODEC, (payload, ctx) -> {
             ctx.enqueueWork(() -> {
                 if (ctx.player() instanceof ServerPlayer player) {
@@ -101,6 +119,12 @@ public class Net {
                 }
             });
         });
+    }
+
+    public static void sendTeamMembers(ServerPlayer player) {
+        if (player == null) return;
+        TeamMembersPayload payload = CoinsService.getTeamData(player);
+        PacketDistributor.sendToPlayer(player, payload);
     }
 
     public static void sendCoinsBalance(ServerPlayer player, int balance) {

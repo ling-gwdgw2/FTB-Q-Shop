@@ -12,8 +12,8 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 build_dir = os.path.join(project_root, "build")
 libs_out_dir = os.path.join(build_dir, "libs")
 out_classes = os.path.join(build_dir, "classes")
-out_jar = os.path.join(libs_out_dir, "ling_q_shop-v1.3-neoforge-1.21.1.jar")
-root_jar = os.path.join(project_root, "ling_q_shop-v1.3-neoforge-1.21.1.jar")
+out_jar = os.path.join(libs_out_dir, "ling_q_shop-v1.4-neoforge-1.21.1.jar")
+root_jar = os.path.join(project_root, "ling_q_shop-v1.4-neoforge-1.21.1.jar")
 
 if os.path.exists(out_classes):
     shutil.rmtree(out_classes)
